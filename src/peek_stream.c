@@ -1,14 +1,17 @@
 #include "peek_stream.h"
+
 #include "util.h"
 
-void peek_stream_init(struct peek_stream *stream, char *str) {
+void peek_stream_init(struct peek_stream *stream,
+                      char *str) {
   stream->str = str;
   stream->pos = 0;
   stream->len = strlen(str);
 }
 
 struct peek_stream *peek_stream_new(char *str) {
-  struct peek_stream *stream = emalloc(sizeof(struct peek_stream));
+  struct peek_stream *stream =
+      emalloc(sizeof(struct peek_stream));
   peek_stream_init(stream, str);
   return stream;
 }

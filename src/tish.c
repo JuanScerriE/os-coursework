@@ -32,13 +32,13 @@ char *sh_launch(char **args, bool *continue_loop) {
 
   if ((pid = fork()) == -1) {
     perror("fork");
-  } else if (pid > 0) { // Parent
+  } else if (pid > 0) {  // Parent
     if (waitpid(pid, &status, 0) == -1) {
       perror("waitpid");
     }
 
     *continue_loop = true;
-  } else { // Child
+  } else {  // Child
     if (execvp(args[0], args) == -1) {
       die("execvp:");
     }
@@ -57,9 +57,11 @@ char *sh_launch(char **args, bool *continue_loop) {
 /* char *prompt_update(char *prompt, char *command) { */
 /*   size_t prompt_size = strlen(prompt); */
 /*   size_t command_size = strlen(command); */
-/*   char *dy_prompt = emalloc(sizeof(char) * (prompt_size + command_size)); */
+/*   char *dy_prompt = emalloc(sizeof(char) * (prompt_size +
+ * command_size)); */
 /*   strncpy(dy_prompt, command, command_size); */
-/*   strncpy(dy_prompt + command_size, prompt, prompt_size); */
+/*   strncpy(dy_prompt + command_size, prompt, prompt_size);
+ */
 /*   return dy_prompt; */
 /* } */
 
@@ -72,7 +74,8 @@ int main(void) {
 
   /* char *prompt = prompt_init("> "); */
 
-  while (continue_loop == true && (line = linenoise("> ")) != NULL) {
+  while (continue_loop == true &&
+         (line = linenoise("> ")) != NULL) {
     if (*line != '\0') {
       vec = tokenise(line);
       args = token_vec_get_list(vec);

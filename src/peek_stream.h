@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 struct peek_stream {
   char *str;
@@ -9,8 +9,8 @@ struct peek_stream {
   size_t len;
 };
 
-
-void peek_stream_init(struct peek_stream *stream, char *str);
+void peek_stream_init(struct peek_stream *stream,
+                      char *str);
 struct peek_stream *peek_stream_new(char *str);
 void peek_stream_shallow_free(struct peek_stream *stream);
 void peek_stream_deep_free(struct peek_stream *stream);

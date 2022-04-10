@@ -1,4 +1,5 @@
 #include "token_vec.h"
+
 #include "util.h"
 
 #define DEFAULT_SIZE 16
@@ -58,7 +59,8 @@ void token_vec_grow(struct token_vec *vec, size_t need) {
   while (vec->alc < need)
     vec->alc <<= 1;
 
-  vec->arr = erealloc(vec->arr, sizeof(struct token *) * vec->alc);
+  vec->arr =
+      erealloc(vec->arr, sizeof(struct token *) * vec->alc);
 }
 
 void token_vec_init(struct token_vec *vec, size_t est) {
@@ -96,7 +98,8 @@ void token_vec_deep_free(struct token_vec *vec) {
   }
 }
 
-void token_vec_append(struct token_vec *vec, struct token *tok) {
+void token_vec_append(struct token_vec *vec,
+                      struct token *tok) {
   if (vec->len >= vec->alc)
     token_vec_grow(vec, vec->alc + 1);
 
@@ -104,19 +107,21 @@ void token_vec_append(struct token_vec *vec, struct token *tok) {
 }
 
 /*
- * Keep in mind that the list provided this function should be
- * freed independently of the the token vector. You should free
- * the individual strings and then you should free the array of
- * pointers.
+ * Keep in mind that the list provided this function should
+ * be freed independently of the the token vector. You
+ * should free the individual strings and then you should
+ * free the array of pointers.
  */
 
 char **token_vec_get_list(struct token_vec *vec) {
   char **list = emalloc(sizeof(char *) * (vec->len + 1));
 
   for (size_t i = 0; i < vec->len; i++) {
-    list[i] = emalloc(sizeof(char) * (strlen(vec->arr[i]->str) + 1));
+    list[i] = emalloc(sizeof(char) *
+                      (strlen(vec->arr[i]->str) + 1));
 
-    strncpy(list[i], vec->arr[i]->str, strlen(vec->arr[i]->str) + 1);
+    strncpy(list[i], vec->arr[i]->str,
+            strlen(vec->arr[i]->str) + 1);
   }
 
   list[vec->len] = NULL;

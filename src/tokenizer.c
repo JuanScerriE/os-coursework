@@ -1,7 +1,7 @@
+#include <ctype.h>
+
 #include "peek_stream.h"
 #include "token_vec.h"
-
-#include <ctype.h>
 
 struct token_vec *tokenise(char *line) {
   struct peek_stream stream;

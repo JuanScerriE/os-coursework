@@ -16,9 +16,10 @@ void token_deep_free(struct token *);
 void token_append(struct token *, char);
 
 struct token_vec {
-  struct token **arr; /* pointer to array of token pointers */
-  size_t len;         /* length of the current array */
-  size_t alc;         /* allocated size of array */
+  struct token *
+      *arr;   /* pointer to array of token pointers */
+  size_t len; /* length of the current array */
+  size_t alc; /* allocated size of array */
 };
 
 void token_vec_grow(struct token_vec *, size_t);
