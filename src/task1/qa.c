@@ -4,7 +4,6 @@
 
 /* Imported to make testing easier. */
 #include "../linenoise.h"
-#include "../token_vec.h"
 #include "../tokenizer.h"
 #include "../util.h"
 
@@ -39,15 +38,13 @@ pid_t fork_exec(char **args) {
 
 /* The main method is used for testing. */
 
-int main(int argc, char **argv) {
+int main(void) {
   char *line;
   char **args;
-  struct token_vec *vec;
 
   if ((line = linenoise("> ")) != NULL) {
     if (*line != '\0') {
-      vec = tokenise(line);
-      args = token_vec_get_list(vec);
+      args = tokenise(line, " \n\r\t");
 
       if (fork_exec(args) == -1) {
         perror("fork_exec");
@@ -55,7 +52,6 @@ int main(int argc, char **argv) {
       }
 
       string_arr_free(args);
-      token_vec_deep_free(vec);
     }
 
     free(line);
