@@ -4,7 +4,7 @@ project(assignment C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Ofast -Wall -Wextra -Werror")
 
-set(DEPEND util/linenoise.c util/tokenizer.c util/string_vec.c
+set(DEPEND util/linenoise.c util/tokeniser.c util/string_vec.c
   util/peek_stream.c)
 
 set(DEPEND_SHELL task3and4/linenoise.c task3and4/tokeniser.c

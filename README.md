@@ -1,10 +1,10 @@
-# CPS1011 Assignment
+# CPS1012 Assignment
 
 This repository contains the source code for all the tasks which
-had to be completed for the CPS1011 assignment. CPS1011 is a
+had to be completed for the CPS1012 assignment. CPS1012 is a
 compulsory unit at the University of Malta which has to be
 taken by first year Computer Science and Mathematics undergraduates
-during the first semester.
+during the second semester.
 
 ## The Structure of the Assignment
 
@@ -31,7 +31,26 @@ during the first semester.
 |    |    |- linenoise.h
 |    |    |- parse_execute.c
 |    |    |- parse_execute.h
+|    |    |- string_t.c
+|    |    |- string_t.h
+|    |    |- tish.c
+|    |    |- tokeniser.c
+|    |    |- tokeniser.h
+|    |    |- token_t.c
+|    |    |- token_t.h
+|    |    |- token_vec_t.c
+|    |    |- token_vec_t.h
+|    |    `- util.h
 |    |- util
+|    |    |- linenoise.c
+|    |    |- linenoise.h
+|    |    |- peek_stream.c
+|    |    |- peek_stream.h
+|    |    |- string_vec.c
+|    |    |- string_vec.h
+|    |    |- tokeniser.c
+|    |    |- tokeniser.h
+|    |    `- util.h
 |    |- .clang-format
 |    `- CMakeLists.txt
 ```
@@ -46,49 +65,47 @@ The minimum required version for `cmake` is `3.10`.
 Starting from the root of the directory, execute the following commands.
 
 ```
-$ cd task1
-task1 $ mkdir build
-task1/build $ cd build
-task1/build $ cmake ..
-task1/build $ make
-task1/build $ cd ../../task2
-task2 $ mkdir build
-task2/build $ cd build
-task2/build $ cmake ..
-task2/build $ make
+$ cmake -S src -B build ; cd build ; make
 ```
 
-This generates 8 executables. Which are the following:
+This generates 7 executables. Which are the following:
 
 ```
-Task 1 (task1/build)    Task2 (task2/build)
+Task 1  Task2   Task 3
 
-./question_a1_test      ./question_a_test
-./question_a2_test      ./question_b_test
-./question_a3_test
-./question_a4_test
-./question_a5_test
-./question_b
+./q1a   ./q2ab  ./tish
+./q1c
+./q1d
+./q1e
 ```
 
-To execute the following binaries you must go into the build directory of the
-respective task and type the following command where you must substitute
-`{name_of_binary}` with one of the binaries described above.
+To execute the following binaries you must be in the build
+directory and type the following command where you must
+substitute `{name_of_binary}` with one of the binaries described
+above.
 
 ```
-{task1/task2}/build $ ./{name_of_binary}
+build $ ./{name_of_binary}
 ```
 
 E.g.
 
 ```
-task1/build $ ./question_a1_test
-task2/build $ ./question_b_test
+build $ ./q2ab
+build $ ./tish
 ```
 
 ## Testing
 
-For task 2 ensure that example csv files are present in the directory of the
-binaries. Ensure that the names are `test_data_2a.csv` and `test_data_2b.csv`.
+Each binary has a main method which allows it to be run and
+tested with random user to test if the expected behaviour is
+observed.
 
-Examples are provided in the `test_data` directory.
+Moreover, `valgrind` for profiling to ensure that no
+memory is leaked.
+
+## References
+
+For this assignment I used the suggested line editing library
+`linenoise`. The repository can be found at
+[antirez/linenoise](https://github.com/antirez/linenoise)

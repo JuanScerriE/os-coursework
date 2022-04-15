@@ -2,7 +2,7 @@
 
 /* Imported to make testing easier. */
 #include "../util/linenoise.h"
-#include "../util/tokenizer.h"
+#include "../util/tokeniser.h"
 #include "../util/util.h"
 
 #define RD 0

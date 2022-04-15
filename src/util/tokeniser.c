@@ -1,4 +1,4 @@
-#include "tokenizer.h"
+#include "tokeniser.h"
 
 static inline bool isdelim(char ch, const char *delim) {
   for (size_t i = 0; i < strlen(delim); i++) {

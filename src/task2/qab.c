@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "../util/linenoise.h"
-#include "../util/tokenizer.h"
+#include "../util/tokeniser.h"
 #include "../util/util.h"
 
 #ifdef __linux__
