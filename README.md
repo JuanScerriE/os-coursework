@@ -69,7 +69,7 @@ The minimum required version for `cmake` is `3.10`.
 Starting from the root of the directory, execute the following commands.
 
 ```
-$ cmake -S src -B build ; cd build ; make
+cmake -S src -B build ; cd build ; make
 ```
 
 This generates 7 executables. Which are the following:
