@@ -98,8 +98,8 @@ build $ ./tish
 ## Testing
 
 Each binary has a main method which allows it to be run and
-tested with random user to test if the expected behaviour is
-observed.
+tested with random user input to test if the expected behaviour
+is observed.
 
 Moreover, `valgrind` was used for profiling to ensure that no
 memory is leaked.
