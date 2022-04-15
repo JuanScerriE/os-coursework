@@ -23,6 +23,14 @@ during the first semester.
 |    |- task2
 |    |    `- qab.c
 |    |- task3and4
+|    |    |- builtin.c
+|    |    |- builtin.h
+|    |    |- external.c
+|    |    |- external.h
+|    |    |- linenoise.c
+|    |    |- linenoise.h
+|    |    |- parse_execute.c
+|    |    |- parse_execute.h
 |    |- util
 |    |- .clang-format
 |    `- CMakeLists.txt
