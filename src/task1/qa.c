@@ -3,9 +3,9 @@
 #include <unistd.h>
 
 /* Imported to make testing easier. */
-#include "../linenoise.h"
-#include "../tokenizer.h"
-#include "../util.h"
+#include "../util/linenoise.h"
+#include "../util/tokenizer.h"
+#include "../util/util.h"
 
 /*
  * @fork_exec The function forks the running process and

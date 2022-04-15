@@ -3,9 +3,9 @@
 #include <unistd.h>
 
 /* Imported to make testing easier. */
-#include "../linenoise.h"
-#include "../tokenizer.h"
-#include "../util.h"
+#include "../util/linenoise.h"
+#include "../util/tokenizer.h"
+#include "../util/util.h"
 
 #define RD 0
 #define WR 1
@@ -98,8 +98,8 @@ pid_t fork_exec(char **args1, char **args2) {
 
 int main(void) {
   char *line;
-  char **args1;
-  char **args2;
+  char **args1 = NULL;
+  char **args2 = NULL;
 
   if ((line = linenoise("1 > ")) != NULL) {
     if (*line != '\0')
@@ -120,8 +120,8 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  free(args1);
-  free(args2);
+  string_arr_free(args1);
+  string_arr_free(args2);
 
   return EXIT_SUCCESS;
 }

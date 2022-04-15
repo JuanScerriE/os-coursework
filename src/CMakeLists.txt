@@ -2,14 +2,21 @@ cmake_minimum_required(VERSION 3.10)
 project(assignment C)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Ofast -Wall -Wextra -Werror")
 
-set(DEPEND linenoise.c tokenizer.c string_vec.c peek_stream.c)
+set(DEPEND util/linenoise.c util/tokenizer.c util/string_vec.c
+  util/peek_stream.c)
 
-add_executable(tish tish.c ${DEPEND})
+set(DEPEND_SHELL task3and4/linenoise.c task3and4/tokeniser.c
+  task3and4/external.c task3and4/builtin.c task3and4/string_t.c
+  task3and4/token_t.c task3and4/token_vec_t.c
+  task3and4/parse_execute.c)
+
 add_executable(q1a task1/qa.c ${DEPEND})
 add_executable(q1b task1/qb.c ${DEPEND})
 add_executable(q1c task1/qc.c ${DEPEND})
 add_executable(q1d task1/qd.c ${DEPEND})
 add_executable(q1e task1/qe.c ${DEPEND})
 add_executable(q2ab task2/qab.c ${DEPEND})
+
+add_executable(tish task3and4/tish.c ${DEPEND_SHELL})

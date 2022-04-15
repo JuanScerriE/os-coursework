@@ -3,9 +3,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "../linenoise.h"
-#include "../tokenizer.h"
-#include "../util.h"
+#include "../util/linenoise.h"
+#include "../util/tokenizer.h"
+#include "../util/util.h"
 
 #ifdef __linux__
 #include <linux/limits.h>

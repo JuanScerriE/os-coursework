@@ -3,9 +3,9 @@
 #include <unistd.h>
 
 /* Imported to make testing easier. */
-#include "../linenoise.h"
-#include "../tokenizer.h"
-#include "../util.h"
+#include "../util/linenoise.h"
+#include "../util/tokenizer.h"
+#include "../util/util.h"
 
 #define RD 0
 #define WR 1
@@ -78,7 +78,7 @@ static inline pid_t fork_exec_pipe(char **pipeline[],
   int current_fd[2];
   int previous_fd[2];
   int status;
-  pid_t pid;
+  pid_t pid = -1;
 
   for (size_t i = 0; pipeline[i] != NULL; i++) {
     // Create a new pipe only if the current process is not
@@ -192,6 +192,8 @@ static inline void test1(void) {
   pipeline[pipeline_len] = NULL;
 
   // Use WNOHANG if you want it to not wait.
+  // NOTE: We are reading from the terminals stdin and
+  // ouputting to test.txt.
   if (fork_exec_pipe(pipeline, 0, NULL, "test.txt", true) ==
       -1) {
     perror("execute_pipeline_async");
@@ -238,6 +240,8 @@ static inline void test2(void) {
 
   pipeline[pipeline_len] = NULL;
 
+  // NOTE: We are reading from intest.txt and ouputting to
+  // outtest.txt.
   // Use WNOHANG if you want it to not wait.
   if (fork_exec_pipe(pipeline, 0, "intest.txt",
                      "outtest.txt", true) == -1) {

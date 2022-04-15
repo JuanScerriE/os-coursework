@@ -2,9 +2,9 @@
 #include <unistd.h>
 
 /* Imported to make testing easier. */
-#include "../linenoise.h"
-#include "../tokenizer.h"
-#include "../util.h"
+#include "../util/linenoise.h"
+#include "../util/tokenizer.h"
+#include "../util/util.h"
 
 #define RD 0
 #define WR 1
@@ -27,7 +27,7 @@ static inline pid_t execute_pipeline_async(
   int current_fd[2];
   int previous_fd[2];
   int status;
-  pid_t pid;
+  pid_t pid = -1;
 
   for (size_t i = 0; pipeline[i] != NULL; i++) {
     // Create a new pipe only if the current process is not
