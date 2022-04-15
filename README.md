@@ -9,6 +9,7 @@ during the second semester.
 ## The Structure of the Assignment
 
 ```
+/
 |- .clang-format
 |- .gitignore
 |- README.md
