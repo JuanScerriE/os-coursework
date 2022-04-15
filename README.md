@@ -101,11 +101,11 @@ Each binary has a main method which allows it to be run and
 tested with random user to test if the expected behaviour is
 observed.
 
-Moreover, `valgrind` for profiling to ensure that no
+Moreover, `valgrind` was used for profiling to ensure that no
 memory is leaked.
 
 ## References
 
 For this assignment I used the suggested line editing library
 `linenoise`. The repository can be found at
-[antirez/linenoise](https://github.com/antirez/linenoise)
+[antirez/linenoise](https://github.com/antirez/linenoise).
