@@ -22,8 +22,10 @@ during the second semester.
     |    |- qd.c
     |    `- qe.c
     |- task2
+    |    |- .clang-format
     |    `- qab.c
     |- task3and4
+    |    |- .clang-format
     |    |- builtin.c
     |    |- builtin.h
     |    |- external.c
@@ -43,6 +45,7 @@ during the second semester.
     |    |- token_vec_t.h
     |    `- util.h
     |- util
+    |    |- .clang-format
     |    |- linenoise.c
     |    |- linenoise.h
     |    |- peek_stream.c

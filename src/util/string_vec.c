@@ -114,9 +114,9 @@ void string_vec_append(struct string_vec *vec,
  * free the array of pointers.
  */
 
-// FIXME: Add a way to get the size because the will be useful
-// since it is already computed I don't need to recompute it
-// that would be very wasteful.
+// FIXME: Add a way to get the size because the will be
+// useful since it is already computed I don't need to
+// recompute it that would be very wasteful.
 
 char **string_vec_get_list(struct string_vec *vec) {
   char **list = emalloc(sizeof(char *) * (vec->len + 1));

@@ -27,5 +27,6 @@ void string_vec_init(struct string_vec *, size_t);
 struct string_vec *string_vec_new(void);
 void string_vec_shallow_free(struct string_vec *);
 void string_vec_deep_free(struct string_vec *);
-void string_vec_append(struct string_vec *, struct string *);
+void string_vec_append(struct string_vec *,
+                       struct string *);
 char **string_vec_get_list(struct string_vec *);

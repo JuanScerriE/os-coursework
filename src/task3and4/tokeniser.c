@@ -208,8 +208,8 @@ static inline int init(char *arr) {
 // syntactic analysis.
 //
 // NOTE: This is handling the requests of task 3 and task 4.
-// More specifically, this is handling parts question a) form task 3
-// and and question a), b) and c) from task 4.
+// More specifically, this is handling parts question a)
+// form task 3 and and question a), b) and c) from task 4.
 int tokenise(token_vec_t *toks, char *arr) {
   if (init(arr) == -1) {
     goto fail_tokenise;
