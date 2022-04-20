@@ -2,11 +2,6 @@
 
 char cwd[PATH_MAX];
 
-builtin_command_t builtins[] = {{"exit", &builtin_exit},
-                                {"cd", &builtin_cd},
-                                {"cwd", &builtin_cwd},
-                                {"ver", &builtin_ver}};
-
 int builtin_exit(char **args) {
   UNUSED(args);
 
@@ -61,6 +56,15 @@ int builtin_ver(char **args) {
   return 0;
 }
 
+builtin_command_t builtins[] = {{"exit", &builtin_exit},
+                                {"cd", &builtin_cd},
+                                {"cwd", &builtin_cwd},
+                                {"ver", &builtin_ver}};
+
 size_t get_num_of_builtins(void) {
   return sizeof(builtins) / sizeof(builtin_command_t);
+}
+
+builtin_command_t get_builtin(size_t i) {
+  return builtins[i];
 }

@@ -6,5 +6,5 @@
 #include "external.h"
 #include "tokeniser.h"
 
-int parse(token_vec_t toks);
-pid_t execute(token_vec_t toks);
+int parse(token_vec_t, size_t *);
+/* pid_t execute(token_vec_t); */

@@ -38,3 +38,4 @@ typedef struct {
 extern builtin_command_t builtins[];
 
 size_t get_num_of_builtins(void);
+builtin_command_t get_builtin(size_t);

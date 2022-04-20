@@ -1,0 +1,10 @@
+ls -al | figlet > test.out; ver
+ls -al | figlet> test.out ; cd ..
+ls -al || figlet> test.out
+;;;; ls -al ;;;;; figlet<test.in>>test.out ;
+ls-al >> hello.out; >>>;
+"ls -a"ll | figlet > test.out; ver
+ls"/" | figlet
+ls \"\\/\" | figlet
+ls \"" | figlet"
+ls \"" | figlet

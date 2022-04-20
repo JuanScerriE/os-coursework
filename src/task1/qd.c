@@ -100,23 +100,9 @@ int main(void) {
   char ***pipeline =
       emalloc(pipeline_size * sizeof(char **));
 
-  while ((line = linenoise("(Enter to Stop) > ")) != NULL) {
-    if (*line != '\0') {
-      if (pipeline_len >= pipeline_size) {
-        pipeline_size <<= 1;
-        pipeline = erealloc(
-            pipeline, pipeline_size * sizeof(char **));
-      }
+  goto start;
 
-      pipeline[pipeline_len++] = tokenise(line, " \n\r\t");
-    } else {
-      free(line);
-      break;
-    }
-
-    free(line);
-  }
-
+execute_pipe:
   if (pipeline_len >= pipeline_size) {
     pipeline_size <<= 1;
     pipeline =
@@ -128,7 +114,7 @@ int main(void) {
   // Use WNOHANG if you want it to not wait.
   if (execute_pipeline_async(pipeline, 0) == -1) {
     perror("execute_pipeline_async");
-    return EXIT_FAILURE;
+    /*return EXIT_FAILURE;*/
   }
 
   for (size_t i = 0; i < pipeline_len; i++)
@@ -136,6 +122,44 @@ int main(void) {
 
   if (pipeline != NULL)
     free(pipeline);
+
+start:
+  while ((line = linenoise("(Enter to Stop) > ")) != NULL) {
+    if (*line != '\0') {
+      if (pipeline_len >= pipeline_size) {
+        pipeline_size <<= 1;
+        pipeline = erealloc(
+            pipeline, pipeline_size * sizeof(char **));
+      }
+
+      pipeline[pipeline_len++] = tokenise(line, " \n\r\t");
+    } else {
+      free(line);
+      goto execute_pipe;
+    }
+
+    free(line);
+  }
+
+  /*if (pipeline_len >= pipeline_size) {
+    pipeline_size <<= 1;
+    pipeline =
+        erealloc(pipeline, pipeline_size * sizeof(char **));
+  }
+
+  pipeline[pipeline_len] = NULL;
+
+  // Use WNOHANG if you want it to not wait.
+  if (execute_pipeline_async(pipeline, 0) == -1) {
+    perror("execute_pipeline_async");
+    *//*return EXIT_FAILURE;*//*
+  }
+
+  for (size_t i = 0; i < pipeline_len; i++)
+    string_arr_free(pipeline[i]);
+
+  if (pipeline != NULL)
+    free(pipeline);*/
 
   return EXIT_SUCCESS;
 }

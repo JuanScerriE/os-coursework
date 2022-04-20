@@ -1,19 +1,352 @@
-#include "parse_execute.h"
-
-#include "builtin.h"
-#include "token_t.h"
-
 // Again similar to the tokeniser I am using this global
 // object and a number of helper functions to easily
 // traverse the stream of tokens without a lot clutter and
 // effort.
 
+#include <stdbool.h>
+#include <stdlib.h>
+
+typedef enum {
+  STRING,
+  PIPE,    // |
+  IN,      // <
+  OUT,     // >
+  APPEND,  // >>
+  SEP,     // ;
+} TokenType;
+
 typedef struct {
-  token_vec_t toks;
+  TokenType type;
+  struct {
+    char *str;
+    size_t len;
+  };
+} Token;
+
+typedef struct {
+  char *stream;
   size_t pos;
-} token_stream_t;
+  size_t len;
+} CharStream;
+
+static CharStream charStream;
+
+static inline void initCharStream(char *stream, size_t len) {
+  charStream.stream = stream;
+  charStream.len = len;
+}
+
+typedef struct {
+  Token *stream;
+  size_t pos;
+  size_t len;
+} TokenStream;
+
+static TokenStream tokenStream;
+
+static inline void initTokenStream(char *stream, size_t len) {
+  charStream.stream = stream;
+  charStream.len = len;
+}
+
+typedef struct {
+  char ***pipeline;
+  char *infile;
+  char *outfile;
+  bool append;
+} Statement;
+
+typedef struct {
+  // These are the final product which will be executed.
+  struct {
+    Statement *get;
+    size_t len;
+  } statement;
+
+  //
+} InterpreterState;
+
+static InterpreterState state;
 
 static token_stream_t stream_g;
+
+static string_t str_g;
+
+// These methods are wrapper functions to reduce
+// clutter in the main function. In fact they should
+// be optimised out by the compiler.
+
+static inline int w_str_init(void) {
+  return string_init(&str_g, 16);
+}
+
+static inline int w_str_app(char ch) {
+  return string_append(&str_g, ch);
+}
+
+static inline token_t w_emit_cmd_tok(void) {
+  return emit_cmd_tok(str_g);
+}
+
+static inline void w_str_free(void) {
+  string_free(&str_g);
+}
+
+/* ------------------------------------------------- */
+
+// Similarly, this is a global variable used to allocate
+// tokens.
+static token_vec_t toks_g;
+
+// And similarly these are wrappers to make writing easier
+// and less cluttered.
+static inline int w_tok_vec_init(void) {
+  return token_vec_init(&toks_g, 16);
+}
+
+static inline int w_tok_vec_app(token_t tok) {
+  return token_vec_append(&toks_g, tok);
+}
+
+/* ------------------------------------------------- */
+
+// This structure is used to keep track of our position in
+// the input character array across function calls.
+// Naturally, this make the code less cluttered as well.
+
+typedef struct {
+  char *arr;
+  size_t pos;
+  size_t len;
+} stream_t;
+
+static stream_t stream_g;
+
+// Similarly these are helper functions which make
+// traversing one big character array is. Because we do not
+// need to pass pointers around and we can keep track of our
+// position in the character array across function calls.
+
+static inline void stream_init(char *arr) {
+  stream_g.arr = arr;
+  stream_g.pos = 0;
+  stream_g.len = strlen(arr);
+}
+
+static inline char next(void) {
+  if (stream_g.pos < stream_g.len)
+    return stream_g.arr[stream_g.pos++];
+
+  return '\0';
+}
+
+static inline char peek() {
+  if (stream_g.pos < stream_g.len)
+    return stream_g.arr[stream_g.pos];
+
+  return '\0';
+}
+
+static inline bool end(void) {
+  return stream_g.pos >= stream_g.len ? true : false;
+}
+
+/* ------------------------------------------------- */
+
+// This function is used to check if the @param ch is in the
+// @param arr.
+static inline bool is_in(char ch, const char *arr) {
+  for (size_t i = 0; i < strlen(arr); i++) {
+    if (ch == arr[i])
+      return true;
+  }
+
+  return false;
+}
+
+// This function is used to consume a string as a whole
+// command.
+static inline int consume_str_as_cmd() {
+  char ch;
+
+  while (peek() != '"') {
+    ch = next();
+
+    if (end() || is_in(ch, "\r\v\f") || ch == '\0') {
+      fprintf(
+          stderr,
+          "consume_string_as_command: Non-closed string\n");
+      return -1;
+    }
+
+    // NOTE: Wait for the response of the lecturers.
+    // FIXME: I have some issues with escaping I think they
+    // are related to this and they need to be dealt with
+    // depending on the expected behaviour.
+    if (ch == '\\') {
+      switch (ch = next()) {
+        case '\\':
+          if (w_str_app(ch) == -1)
+            return -1;
+          break;
+        case '"':
+          if (w_str_app(ch) == -1)
+            return -1;
+          break;
+        default:
+          fprintf(stderr,
+                  "consume_string_as_command: Invalid "
+                  "escape sequence\n");
+          return -1;
+          break;
+      }
+    } else {
+      if (w_str_app(ch) == -1)
+        return -1;
+    }
+  }
+
+  // Null terminate the string
+  if (w_str_app('\0') == -1)
+    return -1;
+
+  // Consume the double quote (")
+  next();
+
+  return 0;
+}
+
+// This is used just to consume a normal command.
+// So nothing is escaped and the special characters stop us
+// from continuing to consume characters.
+static inline int consume_cmd(char first_ch) {
+  if (w_str_app(first_ch) == -1)
+    return -1;
+
+  char ch;
+
+  while (!end()) {
+    ch = peek();
+
+    if (is_in(ch, " \t\r\v\f|><\n;") || ch == '\0') {
+      break;
+    } else {
+      if (w_str_app(next()) == -1)
+        return -1;
+    }
+  }
+
+  // Null terminate the string.
+  if (w_str_app('\0') == -1)
+    return -1;
+
+  return 0;
+}
+
+// Again this is a simple wrapper which allows us to reduce
+// clutter. Again this should be optimised away by the
+// compiler.
+static inline int init(char *arr) {
+  stream_init(arr);
+
+  if (w_tok_vec_init() == -1)
+    return -1;
+
+  if (w_str_init() == -1)
+    return -1;
+
+  return 0;
+}
+
+// This is the tokenise function which converts the user
+// into from one big characters array into a number of
+// tokens which can then be passed onto the parser for
+// syntactic analysis.
+//
+// NOTE: This is handling the requests of task 3 and task 4.
+// More specifically, this is handling parts question a)
+// form task 3 and and question a), b) and c) from task 4.
+int tokenise(token_vec_t *toks, char *arr) {
+  if (init(arr) == -1) {
+    goto fail_tokenise;
+  }
+
+  char ch;
+
+  while (!end()) {
+    ch = next();
+
+    switch (ch) {
+      // None of the characters should be newlines.
+      case ' ':
+      case '\t':
+      case '\r':
+      case '\v':
+      case '\f':
+        break;
+      case '|':
+        if (w_tok_vec_app(emit_tok(PIPE)) == -1)
+          goto fail_tokenise;
+
+        break;
+      case '>':
+        if (peek() == '>') {
+          if (w_tok_vec_app(emit_tok(APPEND)) == -1)
+            goto fail_tokenise;
+
+          next();
+        } else {
+          if (w_tok_vec_app(emit_tok(OUT)) == -1)
+            goto fail_tokenise;
+        }
+        break;
+      case '<':
+        if (w_tok_vec_app(emit_tok(IN)) == -1)
+          goto fail_tokenise;
+
+        break;
+      case '\n':
+      case ';':
+        if (w_tok_vec_app(emit_tok(SEP)) == -1)
+          goto fail_tokenise;
+
+        break;
+      case '"':
+        if (consume_str_as_cmd() == -1)
+          goto fail_tokenise;
+
+        if (w_tok_vec_app(w_emit_cmd_tok()) == -1)
+          goto fail_tokenise;
+
+        if (w_str_init() == -1)
+          goto fail_tokenise;
+
+        break;
+      default:
+        if (consume_cmd(ch) == -1)
+          goto fail_tokenise;
+
+        if (w_tok_vec_app(w_emit_cmd_tok()) == -1)
+          goto fail_tokenise;
+
+        if (w_str_init() == -1)
+          goto fail_tokenise;
+
+        break;
+    }
+  }
+
+  w_str_free();
+  *toks = toks_g;
+  return 0;
+
+  // I am using labels to avoid repeating this pattern a
+  // multitude of times.
+fail_tokenise:
+  w_str_free();
+  *toks = toks_g;
+  return -1;
+}
 
 static inline void stream_init(token_vec_t toks) {
   stream_g.toks = toks;
@@ -222,7 +555,8 @@ typedef struct {
 
 /*   while (!end()) { */
 /*     // Allocate memory for the pipeline. */
-/*     pipeline = malloc(sizeof(char **) * pipeline_size); */
+/*     pipeline = malloc(sizeof(char **) * pipeline_size);
+ */
 /*     if (pipeline == NULL) { */
 /*       perror("execute"); */
 /*       goto fail_execute; */
@@ -245,7 +579,8 @@ typedef struct {
 /*             command_size += 16; */
 /*             pipeline[pipeline_len] = */
 /*                 realloc(pipeline[pipeline_len], */
-/*                         command_size * sizeof(char *)); */
+/*                         command_size * sizeof(char *));
+ */
 /*             if (pipeline[pipeline_len] == NULL) { */
 /*               perror("execute"); */
 /*               goto fail_execute; */
@@ -260,19 +595,22 @@ typedef struct {
 /*             command_size += 16; */
 /*             pipeline[pipeline_len] = */
 /*                 realloc(pipeline[pipeline_len], */
-/*                         command_size * sizeof(char *)); */
+/*                         command_size * sizeof(char *));
+ */
 /*             if (pipeline[pipeline_len] == NULL) { */
 /*               perror("execute"); */
 /*               goto fail_execute; */
 /*             } */
 /*           } */
 
-/*           pipeline[pipeline_len++][command_len] = NULL; */
+/*           pipeline[pipeline_len++][command_len] = NULL;
+ */
 
 /*           if (pipeline_len >= pipeline_size) { */
 /*             pipeline_size += 16; */
 /*             pipeline = realloc( */
-/*                 pipeline, pipeline_size * sizeof(char **)); */
+/*                 pipeline, pipeline_size * sizeof(char
+ * **)); */
 /*             if (pipeline == NULL) { */
 /*               perror("execute"); */
 /*               goto fail_execute; */
@@ -301,7 +639,8 @@ typedef struct {
 /*     if (pipeline_len >= pipeline_size) { */
 /*       pipeline_size += 16; */
 /*       pipeline = realloc(pipeline, */
-/*                          pipeline_size * sizeof(char **)); */
+/*                          pipeline_size * sizeof(char
+ * **)); */
 /*       if (pipeline == NULL) { */
 /*         perror("execute"); */
 /*         goto fail_execute; */
@@ -333,7 +672,8 @@ typedef struct {
 /*     bool found_builtin = false; */
 
 /*     // Check if the first command is a builtin. */
-/*     for (size_t i = 0; i < get_num_of_builtins(); i++) { */
+/*     for (size_t i = 0; i < get_num_of_builtins(); i++) {
+ */
 /*       if (!strcmp(pipeline[0][0], builtins[i].name)) { */
 /*         found_builtin = true; */
 /*         pid = builtins[i].func(pipeline[0]); */
@@ -342,7 +682,8 @@ typedef struct {
 
 /*     // Otherwise try to execute an external command */
 /*     if (found_builtin == false) { */
-/*       pid = fork_exec_pipe(pipeline, 0, infile, outfile, */
+/*       pid = fork_exec_pipe(pipeline, 0, infile, outfile,
+ */
 /*                            append); */
 /*     } */
 
@@ -378,7 +719,8 @@ typedef struct {
 
 /*   return pid; */
 
-/*   // Again this is used to reduce clutter in the function. */
+/*   // Again this is used to reduce clutter in the
+ * function. */
 /* fail_execute: */
 /*   if (pipeline != NULL) { */
 /*     for (size_t i = 0; i < pipeline_len; i++) { */

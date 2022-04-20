@@ -1,5 +1,7 @@
 #include "external.h"
 
+#include "builtin.h"
+
 #define RD 0
 #define WR 1
 
@@ -79,17 +81,17 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
     // the last.
     if (pipeline[i + 1] != NULL) {
       if (pipe(current_fd) == -1)
-        return -1;
+        goto fail_fork_exec_pipe_parent;
     }
 
     if ((pid = fork()) == -1)
-      return -1;
+      goto fail_fork_exec_pipe_parent;
 
     if (pid == 0) {  // Child
       // If this is the first process.
       if (i == 0) {
         if (infile != NULL && redirect_input(infile) == -1)
-          return -1;
+          goto fail_fork_exec_pipe_child;
       }
 
       if (i > 0) {
@@ -97,7 +99,7 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
         close(previous_fd[WR]);
         // Connect read-end of previous pipe to stdin.
         if (dup2(previous_fd[RD], STDIN_FILENO) == -1)
-          return -1;
+          goto fail_fork_exec_pipe_child;
 
         close(previous_fd[RD]);
       }
@@ -109,7 +111,7 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
         close(current_fd[RD]);
         // Connect write-end of current pipe to stdout.
         if (dup2(current_fd[WR], STDOUT_FILENO) == -1)
-          return -1;
+          goto fail_fork_exec_pipe_child;
 
         close(current_fd[WR]);
       }
@@ -119,11 +121,12 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
         if (outfile != NULL &&
             redirect_output(
                 outfile, append ? O_APPEND : O_TRUNC) == -1)
-          return -1;
+          goto fail_fork_exec_pipe_child;
       }
 
-      if (execvp(*pipeline[i], pipeline[i]) == -1)
-        return -1;
+      if (execvp(*pipeline[i], pipeline[i]) == -1) {
+        goto fail_fork_exec_pipe_child;
+      }
     }
 
     // Only disconnect parent from previous pipe if there
@@ -138,14 +141,19 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
 
     // NOTE: This is the code we'd want to have if we do not
     // want to have zombies during a pipe.
-    /* if (waitpid(pid, &status, options) == -1) */
-    /*   return -1; */
+    if (waitpid(pid, &status, options) == -1)
+      goto fail_fork_exec_pipe_parent;
+
+    // Possibility of handling status.
   }
 
-  if (waitpid(pid, &status, options) == -1)
-    return -1;
-
-  // Possibility of handling status.
-
   return pid;
+
+fail_fork_exec_pipe_parent:
+  perror("fork_exec_pipe");
+  return -1;
+
+fail_fork_exec_pipe_child:
+  perror("fork_exec_pipe");
+  return EXIT_SHELL;
 }

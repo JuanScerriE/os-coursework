@@ -87,7 +87,7 @@ int sh_launch(char **args) {
   pid_t pid;
   int status;
 
-  for (size_t i = 0; i <= get_num_of_builtins(); i++) {
+  for (size_t i = 0; i < get_num_of_builtins(); i++) {
     if (!strcmp(args[0], builtins[i].name)) {
       return builtins[i].func(args);
     }
