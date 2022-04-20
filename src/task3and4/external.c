@@ -7,27 +7,22 @@
 
 static inline int reopen(int fd, char *path, int flags,
                          mode_t mode) {
-  /*
-   * Open a file in the process creating a file descriptor.
-   * This requires updating both the file descriptor table
-   * of the process and the open file table.
-   */
+  // Open a file in the process creating a file descriptor.
+  // This requires updating both the file descriptor table
+  // of the process and the open file table.
   int open_fd = open(path, flags, mode);
+
   if (open_fd == fd || open_fd < 0)
     return open_fd;
 
-  /*
-   * The fd will be updated to point to the same element in
-   * the open file table as open_fd. Obviously, the element
-   * in the open file table will be updated as well to
-   * realise that is has two active pointers.
-   */
+  // The fd will be updated to point to the same element in
+  // the open file table as open_fd. Obviously, the element
+  // in the open file table will be updated as well to
+  // realise that is has two active pointers.
   int dup_fd = dup2(open_fd, fd);
 
-  /*
-   * We close open_fd because we do not need the file
-   * descriptor any more.
-   */
+  // We close open_fd because we do not need the file
+  // descriptor any more.
   close(open_fd);
 
   return dup_fd == -1 ? dup_fd : fd;
@@ -46,8 +41,8 @@ static inline int redirect_output(char *output,
 }
 
 /*
- * @fork_exec_pipe This function executes a pipeline. This
- * is done by creating pipes and arranges them accordingly
+ * @exec_pipeline This function executes a pipeline. This
+ * is done by creating pipes and arranging them accordingly
  * to ensure that processes can communicate. Moreover, it
  * can also change the input and ouput of a pipeline to
  * files.
@@ -62,12 +57,14 @@ static inline int redirect_output(char *output,
  * bound if the pointer is not NULL.
  * @param bool append This variable
  * @return pid_t The function returns the pid of the last
- * forked process if successful. Otherwise it returns -1.
+ * forked process if successful. Otherwise if the parent
+ * fails it  returns -1. If the child fails it returns -2 to
+ * stop the forked process.
  */
 
-pid_t fork_exec_pipe(char **pipeline[], int options,
-                     char *infile, char *outfile,
-                     bool append) {
+pid_t exec_pipeline(char **pipeline[], int options,
+                    char *infile, char *outfile,
+                    bool append) {
   if (pipeline == NULL)
     return -1;
 
@@ -81,17 +78,17 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
     // the last.
     if (pipeline[i + 1] != NULL) {
       if (pipe(current_fd) == -1)
-        goto fail_fork_exec_pipe_parent;
+        goto fail_exec_pipeline_parent;
     }
 
     if ((pid = fork()) == -1)
-      goto fail_fork_exec_pipe_parent;
+      goto fail_exec_pipeline_parent;
 
     if (pid == 0) {  // Child
       // If this is the first process.
       if (i == 0) {
         if (infile != NULL && redirect_input(infile) == -1)
-          goto fail_fork_exec_pipe_child;
+          goto fail_exec_pipeline_child;
       }
 
       if (i > 0) {
@@ -99,7 +96,7 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
         close(previous_fd[WR]);
         // Connect read-end of previous pipe to stdin.
         if (dup2(previous_fd[RD], STDIN_FILENO) == -1)
-          goto fail_fork_exec_pipe_child;
+          goto fail_exec_pipeline_child;
 
         close(previous_fd[RD]);
       }
@@ -111,7 +108,7 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
         close(current_fd[RD]);
         // Connect write-end of current pipe to stdout.
         if (dup2(current_fd[WR], STDOUT_FILENO) == -1)
-          goto fail_fork_exec_pipe_child;
+          goto fail_exec_pipeline_child;
 
         close(current_fd[WR]);
       }
@@ -121,11 +118,11 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
         if (outfile != NULL &&
             redirect_output(
                 outfile, append ? O_APPEND : O_TRUNC) == -1)
-          goto fail_fork_exec_pipe_child;
+          goto fail_exec_pipeline_child;
       }
 
       if (execvp(*pipeline[i], pipeline[i]) == -1) {
-        goto fail_fork_exec_pipe_child;
+        goto fail_exec_pipeline_child;
       }
     }
 
@@ -142,18 +139,21 @@ pid_t fork_exec_pipe(char **pipeline[], int options,
     // NOTE: This is the code we'd want to have if we do not
     // want to have zombies during a pipe.
     if (waitpid(pid, &status, options) == -1)
-      goto fail_fork_exec_pipe_parent;
+      goto fail_exec_pipeline_parent;
 
     // Possibility of handling status.
   }
 
   return pid;
 
-fail_fork_exec_pipe_parent:
-  perror("fork_exec_pipe");
+fail_exec_pipeline_parent:
+  perror("exec_pipeline_parent");
   return -1;
 
-fail_fork_exec_pipe_child:
-  perror("fork_exec_pipe");
+fail_exec_pipeline_child:
+  perror("exec_pipeline_child");
   return EXIT_SHELL;
 }
+
+#undef RD
+#undef WR

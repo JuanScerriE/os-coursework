@@ -51,7 +51,7 @@ static inline int redirect_output(char *output,
 }
 
 /*
- * @fork_exec_pipe This function executes a pipeline. This
+ * @exec_pipeline_ex This function executes a pipeline. This
  * is done by creating pipes and arranges them accordingly
  * to ensure that processes can communicate. Moreover, it
  * can also change the input and ouput of a pipeline to
@@ -70,11 +70,11 @@ static inline int redirect_output(char *output,
  * forked process if successful. Otherwise it returns -1.
  */
 
-static inline pid_t fork_exec_pipe(char **pipeline[],
-                                   int options,
-                                   char *infile,
-                                   char *outfile,
-                                   bool append) {
+static inline pid_t exec_pipeline_ex(char **pipeline[],
+                                     int options,
+                                     char *infile,
+                                     char *outfile,
+                                     bool append) {
   int current_fd[2];
   int previous_fd[2];
   int status;
@@ -144,19 +144,16 @@ static inline pid_t fork_exec_pipe(char **pipeline[],
 
     // NOTE: This is the code we'd want to have if we do not
     // want to have zombies during a pipe.
-    /* if (waitpid(pid, &status, options) == -1) */
-    /*   return -1; */
+    if (waitpid(pid, &status, options) == -1)
+      return -1;
+
+    // Possibility of handling status.
   }
-
-  if (waitpid(pid, &status, options) == -1)
-    return -1;
-
-  // Possibility of handling status.
 
   return pid;
 }
 
-/* The main method is used for testing. */
+// The main method is used for testing.
 
 static inline void test1(void) {
   char *line = NULL;
@@ -194,9 +191,9 @@ static inline void test1(void) {
   // Use WNOHANG if you want it to not wait.
   // NOTE: We are reading from the terminals stdin and
   // ouputting to test.txt.
-  if (fork_exec_pipe(pipeline, 0, NULL, "test.txt", true) ==
-      -1) {
-    perror("execute_pipeline_async");
+  if (exec_pipeline_ex(pipeline, 0, NULL, "test.txt",
+                       true) == -1) {
+    perror("exec_pipeline_ex");
     exit(EXIT_FAILURE);
   }
 
@@ -243,9 +240,9 @@ static inline void test2(void) {
   // NOTE: We are reading from intest.txt and ouputting to
   // outtest.txt.
   // Use WNOHANG if you want it to not wait.
-  if (fork_exec_pipe(pipeline, 0, "intest.txt",
-                     "outtest.txt", true) == -1) {
-    perror("execute_pipeline_async");
+  if (exec_pipeline_ex(pipeline, 0, "intest.txt",
+                       "outtest.txt", true) == -1) {
+    perror("exec_pipeline_ex");
     exit(EXIT_FAILURE);
   }
 

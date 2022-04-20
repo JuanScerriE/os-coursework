@@ -2,33 +2,37 @@
 
 char cwd[PATH_MAX];
 
+// NOTE: This file answers Task 2 b)
+
 int builtin_exit(char **args) {
   UNUSED(args);
 
-  // The OS will deallocate all memory on termination.
-  // It honestly bugs me a bit that you are leaking memory
-  // still. So I am not going to exit through exit(). I will
-  // just return a special value which will indicate to the
-  // shell that it needs to exit.
-  // NOTE: Something similar should be done for malloc and
-  // all other memory related operations becuase I do not
-  // think we know how to recover. Currently we just use
-  // continue running the program. Nothing bad will happen
-  // it's just that the user won't be ablt to do anything
-  // because he can't allocate anymore memory.
-  /*exit(0)*/
+  // NOTE: I am returning -2 as the code which results in
+  // the shell exiting. I am doing this because I do not
+  // trust that the OS will actually free all the resources
+  // allocated to the program.
+
+  /* exit(0) */
+
   return EXIT_SHELL;
 }
 
 int builtin_cd(char **args) {
-  int status;
+  int status = 0;
 
+  // If no argument is specified, 'cd' will change the
+  // directory to the home directory of the current user if
+  // the HOME environment variable is set, otherwise nothing
+  // will happen.
   if (args[1] == NULL) {
-    status = chdir(getenv("HOME"));
+    char *home = getenv("HOME");
+    if (home != NULL)
+      status = chdir(getenv("HOME"));
   } else {
     status = chdir(args[1]);
   }
 
+  // Update the cwd global.
   if (getcwd(cwd, PATH_MAX) == NULL) {
     return -1;
   }
@@ -63,8 +67,4 @@ builtin_command_t builtins[] = {{"exit", &builtin_exit},
 
 size_t get_num_of_builtins(void) {
   return sizeof(builtins) / sizeof(builtin_command_t);
-}
-
-builtin_command_t get_builtin(size_t i) {
-  return builtins[i];
 }

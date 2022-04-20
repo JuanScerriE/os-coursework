@@ -108,8 +108,7 @@ int sh_launch(char **args) {
   return pid;
 }
 
-/* Again main is being used for testing. */
-
+// Again main is being used for testing.
 int main(void) {
   char *line;
   char **args;

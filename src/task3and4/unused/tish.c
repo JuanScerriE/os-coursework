@@ -1,9 +1,12 @@
 #include "builtin.h"
 #include "linenoise.h"
-#include "refinements/Tokeniser.h"
+#include "parse_execute.h"
+#include "tokeniser.h"
 
 int main(void) {
   char *line;
+  token_vec_t toks;
+  size_t num_of_statements;
 
   // This is run once to set the cwd variable.
   if (getcwd(cwd, PATH_MAX) == NULL) {
@@ -34,22 +37,25 @@ int main(void) {
   // NOTE: This is question c) and question d) from task 3.
   while ((line = linenoise("tish $ ")) != NULL) {
     if (*line != '\0') {
-      int ret = interpret(line);
+      if (tokenise(&toks, line) != -1) {
+        if (parse(toks, &num_of_statements) != -1) {
+          /*if (execute(toks) == EXIT_SHELL)
+            goto exit_main;*/
+        }
 
-      if (ret == -1) {
-        // Do nothing.
-      } else if (ret == EXIT_SHELL) {
-        goto exit_shell;
+        fprintf(stderr, "NUM_OF_STATMETNS: %lu\n", num_of_statements);
       }
+
+      token_vec_free(&toks);
     }
 
-    free(line);
+    line = NULL;
   }
 
   return EXIT_SUCCESS;
 
-exit_shell:
+//exit_main:
+  token_vec_free(&toks);
   free(line);
-
   return EXIT_SUCCESS;
 }

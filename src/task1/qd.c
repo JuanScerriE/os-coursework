@@ -79,20 +79,16 @@ static inline pid_t execute_pipeline_async(
 
     // NOTE: This is the code we'd want to have if we do not
     // want to have zombies during a pipe.
-    /* if (waitpid(pid, &status, options) == -1) */
-    /*   return -1; */
+    if (waitpid(pid, &status, options) == -1)
+      return -1;
+
+    // Possibility of handling status.
   }
-
-  if (waitpid(pid, &status, options) == -1)
-    return -1;
-
-  // Possibility of handling status.
 
   return pid;
 }
 
-/* The main method is used for testing. */
-
+// The main method is used for testing.
 int main(void) {
   char *line = NULL;
   size_t pipeline_size = 16;
@@ -114,7 +110,7 @@ execute_pipe:
   // Use WNOHANG if you want it to not wait.
   if (execute_pipeline_async(pipeline, 0) == -1) {
     perror("execute_pipeline_async");
-    /*return EXIT_FAILURE;*/
+    return EXIT_FAILURE;
   }
 
   for (size_t i = 0; i < pipeline_len; i++)
@@ -134,32 +130,15 @@ start:
 
       pipeline[pipeline_len++] = tokenise(line, " \n\r\t");
     } else {
+      // We leak memory if the line is empty. However, this
+      // should not be an issue since. This is for testing
+      // purposes.
       free(line);
       goto execute_pipe;
     }
 
     free(line);
   }
-
-  /*if (pipeline_len >= pipeline_size) {
-    pipeline_size <<= 1;
-    pipeline =
-        erealloc(pipeline, pipeline_size * sizeof(char **));
-  }
-
-  pipeline[pipeline_len] = NULL;
-
-  // Use WNOHANG if you want it to not wait.
-  if (execute_pipeline_async(pipeline, 0) == -1) {
-    perror("execute_pipeline_async");
-    *//*return EXIT_FAILURE;*//*
-  }
-
-  for (size_t i = 0; i < pipeline_len; i++)
-    string_arr_free(pipeline[i]);
-
-  if (pipeline != NULL)
-    free(pipeline);*/
 
   return EXIT_SUCCESS;
 }

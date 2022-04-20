@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __BUILTIN_H
+#define __BUILTIN_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,6 @@
 #include <linux/limits.h>
 #else
 #define PATH_MAX 4096
-#define NAME_MAX 255
 #endif
 
 #define EXIT_SHELL -2
@@ -38,4 +38,5 @@ typedef struct {
 extern builtin_command_t builtins[];
 
 size_t get_num_of_builtins(void);
-builtin_command_t get_builtin(size_t);
+
+#endif  // __BUILTIN_H

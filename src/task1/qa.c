@@ -36,8 +36,7 @@ pid_t fork_exec(char **args) {
   return pid;
 }
 
-/* The main method is used for testing. */
-
+// The main method is used for testing.
 int main(void) {
   char *line;
   char **args;

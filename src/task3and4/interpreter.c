@@ -1,14 +1,13 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include "../builtin.h"
-#include "../external.h"
+#include "builtin.h"
+#include "external.h"
 
 #define INIT_SIZE 8
 #define GROW_SIZE 8
 
+// Define DEBUG to getting debugging information to stderr.
+// You can use redirection to output the errors into a file.
 /* #define DEBUG */
 
 /* ------------------------------------------- */
@@ -221,7 +220,7 @@ static inline int initTokens(void) {
 }
 
 // We cannot use this always because we might use the
-// pointers in the tokens later on to avoid copying
+// pointers in the tokens later on to avoid copying,
 // increasing performance.
 static inline void cleanTokens(void) {
   if (IS.Tokens.arr != NULL) {
@@ -459,7 +458,7 @@ static inline int emitString(void) {
 }
 
 /* ------------------------------------------- */
-/* Tokeniser */
+/* Tokeniser (Task 3 a) and Task 4 )*/ 
 /* ------------------------------------------- */
 
 static inline int tokenise(char *str) {
@@ -530,7 +529,7 @@ fail_tokenise:
 };
 
 /* ------------------------------------------- */
-/* Parser */
+/* Parser (Task 3 a) ) */
 /* ------------------------------------------- */
 
 static inline int parse(void) {
@@ -545,8 +544,9 @@ static inline int parse(void) {
     tok = TSNext();
 
     // To make sure that the end is handled correctly.
-    // Because we cannot rely on previous to for example
-    // handle an incorrect redirection like: "ls -al >"
+    // Because we cannot rely on previous token type. For
+    // example so we can handle an incorrect redirection
+    // like: "ls -al >"
     if (isTSEnd())
       prevTokType = tok.type;
 
@@ -666,14 +666,17 @@ static inline int parse(void) {
 fail_parse:
   // These two cleaning mechanisms are fine for this
   // particular stage. Especially cleanTokens since it frees
-  // everything.
+  // the malloced characters.
+  //
+  // cleanStatements() just makes sure to clean the
+  // statement allocations.
   cleanStatements();
   cleanTokens();
   return -1;
 }
 
 /* ------------------------------------------- */
-/* Generate Statements */
+/* Generate Statements (Task 3 a) ) */
 /* ------------------------------------------- */
 
 static inline int genStatements(void) {
@@ -681,7 +684,7 @@ static inline int genStatements(void) {
       malloc(sizeof(Statement) * IS.Statements.len);
 
   if (IS.Statements.arr == NULL) {
-    perror("getStatements");
+    perror("genStatements");
     goto fail_genStatements;
   }
 
@@ -690,7 +693,7 @@ static inline int genStatements(void) {
   size_t z = 0;  // Used to populate pipelines.
 
   for (size_t i = 0; i < IS.Statements.len; i++) {
-    /* Count the number of commands separated by pipes. */
+    // Count the number of commands separated by pipes.
     IS.Statements.arr[i].pipeline.len = 0;
     IS.Statements.arr[i].infile = NULL;
     IS.Statements.arr[i].outfile = NULL;
@@ -701,7 +704,7 @@ static inline int genStatements(void) {
       if (IS.Tokens.arr[x].type == PIPE)
         IS.Statements.arr[i].pipeline.len++;
 
-      /* Populate infile, outfile and append properties. */
+      // Populate infile, outfile and append properties.
       if (IS.Tokens.arr[x].type == IN)
         IS.Statements.arr[i].infile =
             IS.Tokens.arr[++x].str;
@@ -721,15 +724,19 @@ static inline int genStatements(void) {
       x++;
     }
 
+    // Make sure to to move the pointer one forward to start
+    // from the next correct token.
     x++;
     IS.Statements.arr[i].pipeline.len++;
 
+    // Allocated +1 the actual length so that you can NULL
+    // terminate the pipeline.
     IS.Statements.arr[i].pipeline.arr =
         malloc(sizeof(char **) *
                (IS.Statements.arr[i].pipeline.len + 1));
 
     if (IS.Statements.arr[i].pipeline.arr == NULL) {
-      perror("getStatements");
+      perror("genStatements");
       goto fail_genStatements;
     }
 
@@ -741,8 +748,7 @@ static inline int genStatements(void) {
             IS.Statements.arr[i].pipeline.len);
 #endif
 
-    /* Count the number of strings per command per pipe. */
-
+    // Count the number of strings per command per pipeline.
     for (size_t j = 0;
          j < IS.Statements.arr[i].pipeline.len; j++) {
       size_t commandSize = 0;
@@ -754,6 +760,12 @@ static inline int genStatements(void) {
         } else if (IS.Tokens.arr[y].type == PIPE) {
           break;
         } else {
+          // Make sure to go to the start of a new command
+          // if the pipeline is done.
+          //
+          // This is done since you might have redirection
+          // tokens. Not accounting for those throws of the
+          // grouping.
           while (y < IS.Tokens.len &&
                  IS.Tokens.arr[y].type != SEP)
             y++;
@@ -763,6 +775,8 @@ static inline int genStatements(void) {
         y++;
       }
 
+      // Again just move one forward to start at the correct
+      // token.
       y++;
 
 #ifdef DEBUG
@@ -770,11 +784,14 @@ static inline int genStatements(void) {
       fprintf(stderr, "COMMAND_SIZE: %lu\n", commandSize);
 #endif
 
+      // Also similarly allocate +1 more than the actual
+      // size of the command so that the char** can be NULL
+      // terminated.
       IS.Statements.arr[i].pipeline.arr[j] =
           malloc(sizeof(char *) * (commandSize + 1));
 
       if (IS.Statements.arr[i].pipeline.arr[j] == NULL) {
-        perror("getStatements");
+        perror("genStatements");
         goto fail_genStatements;
       }
 
@@ -786,6 +803,8 @@ static inline int genStatements(void) {
             IS.Tokens.arr[z++].str;
       }
 
+      // Set z to the correct location to copy the char *
+      // from the tokens.
       z = y;
 
 #ifdef DEBUG
@@ -806,7 +825,7 @@ fail_genStatements:
 }
 
 /* ------------------------------------------- */
-/* Exposed Function */
+/* Exposed Function (Task 3 b) ) */
 /* ------------------------------------------- */
 
 static inline int execute(void) {
@@ -821,6 +840,7 @@ static inline int execute(void) {
 #endif
 
     // Check if the first command is a builtin.
+    // NOTE: This answers Task 2 a)
     for (size_t j = 0; j < get_num_of_builtins(); j++) {
 #ifdef DEBUG
       fprintf(stderr, "FIRST_COMMAND: %s\n",
@@ -849,12 +869,13 @@ static inline int execute(void) {
     }
 
     // Otherwise try to execute an external command.
+    // @param options for exec_pipeline() is set to 0 to
+    // make the process block.
     if (foundBuiltin == false) {
-      ret =
-          fork_exec_pipe(IS.Statements.arr[i].pipeline.arr,
-                         0, IS.Statements.arr[i].infile,
-                         IS.Statements.arr[i].outfile,
-                         IS.Statements.arr[i].append);
+      ret = exec_pipeline(IS.Statements.arr[i].pipeline.arr,
+                          0, IS.Statements.arr[i].infile,
+                          IS.Statements.arr[i].outfile,
+                          IS.Statements.arr[i].append);
       if (ret == -1) {
         goto stop_execute;
       } else if (ret == EXIT_SHELL) {
@@ -872,7 +893,7 @@ stop_execute:
 }
 
 /* ------------------------------------------- */
-/* Exposed Function */
+/* Exposed Functions */
 /* ------------------------------------------- */
 
 int interpret(char *str) {
@@ -894,6 +915,3 @@ int interpret(char *str) {
 
   return 0;
 }
-
-#undef INIT_SIZE
-#undef GROW_SIZE
