@@ -1,7 +1,5 @@
 #include "external.h"
 
-#include "builtin.h"
-
 #define RD 0
 #define WR 1
 
@@ -121,8 +119,13 @@ pid_t exec_pipeline(char **pipeline[], int options,
           goto fail_exec_pipeline_child;
       }
 
-      if (execvp(*pipeline[i], pipeline[i]) == -1) {
-        goto fail_exec_pipeline_child;
+      if (pipeline[i][0] != NULL) {
+        if (execvp(pipeline[i][0], pipeline[i]) == -1) {
+          goto fail_exec_pipeline_child;
+        }
+      } else {
+        // Retrun here immediately so we do not print perror.
+        return EXIT_SHELL;
       }
     }
 

@@ -27,7 +27,7 @@ int builtin_cd(char **args) {
   if (args[1] == NULL) {
     char *home = getenv("HOME");
     if (home != NULL)
-      status = chdir(getenv("HOME"));
+      status = chdir(home);
   } else {
     status = chdir(args[1]);
   }

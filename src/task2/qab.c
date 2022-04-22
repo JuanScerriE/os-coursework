@@ -11,7 +11,6 @@
 #include <linux/limits.h>
 #else
 #define PATH_MAX 4096
-#define NAME_MAX 255
 #endif
 
 char cwd[PATH_MAX];
@@ -25,10 +24,12 @@ char cwd[PATH_MAX];
 #define UNUSED(...) (void)(__VA_ARGS__)
 
 int sh_cd(char **args) {
-  int status;
+  int status = 0;
 
   if (args[1] == NULL) {
-    status = chdir(getenv("HOME"));
+    char *home = getenv("HOME");
+    if (home != NULL)
+      status = chdir(home);
   } else {
     status = chdir(args[1]);
   }

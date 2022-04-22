@@ -1,12 +1,11 @@
-#include <string.h>
+#include "interpreter.h"
 
-#include "builtin.h"
-#include "external.h"
+#include <string.h>
 
 #define INIT_SIZE 8
 #define GROW_SIZE 8
 
-// Define DEBUG to getting debugging information to stderr.
+// Define DEBUG to get debugging information from stderr.
 // You can use redirection to output the errors into a file.
 /* #define DEBUG */
 
@@ -458,7 +457,7 @@ static inline int emitString(void) {
 }
 
 /* ------------------------------------------- */
-/* Tokeniser (Task 3 a) and Task 4 )*/ 
+/* Tokeniser (Task 3 a) and Task 4 )*/
 /* ------------------------------------------- */
 
 static inline int tokenise(char *str) {
@@ -470,10 +469,6 @@ static inline int tokenise(char *str) {
 
   while (!isCSEnd()) {
     ch = CSPeek();
-
-#ifdef DEBUG
-    fprintf(stderr, "Character: %c\n", ch);
-#endif
 
     switch (ch) {
         // WHITE SPACE
@@ -748,7 +743,7 @@ static inline int genStatements(void) {
             IS.Statements.arr[i].pipeline.len);
 #endif
 
-    // Count the number of strings per command per pipeline.
+    // Count the number of strings per command per pipe.
     for (size_t j = 0;
          j < IS.Statements.arr[i].pipeline.len; j++) {
       size_t commandSize = 0;
@@ -841,29 +836,36 @@ static inline int execute(void) {
 
     // Check if the first command is a builtin.
     // NOTE: This answers Task 2 a)
-    for (size_t j = 0; j < get_num_of_builtins(); j++) {
+
 #ifdef DEBUG
-      fprintf(stderr, "FIRST_COMMAND: %s\n",
-              IS.Statements.arr[i].pipeline.arr[0][0]);
-      fprintf(stderr, "BUILTIN_PTR: %p\n", &builtins[j]);
+    fprintf(stderr, "FIRST_COMMAND: %s\n",
+            IS.Statements.arr[i].pipeline.arr[0][0]);
+#endif
+
+    for (size_t j = 0; j < get_num_of_builtins(); j++) {
+
+#ifdef DEBUG
       fprintf(stderr, "BUILTIN: %s\n", builtins[j].name);
 #endif
-      if (!strcmp(IS.Statements.arr[i].pipeline.arr[0][0],
 
-                  builtins[j].name)) {
+      if (IS.Statements.arr[i].pipeline.arr[0][0] != NULL) {
+        if (!strcmp(IS.Statements.arr[i].pipeline.arr[0][0],
+
+                    builtins[j].name)) {
 #ifdef DEBUG
-        fprintf(stderr, "VERIFY REACHED\n");
+          fprintf(stderr, "VERIFY REACHED\n");
 #endif
-        foundBuiltin = true;
-        ret = builtins[j].func(
-            IS.Statements.arr[i].pipeline.arr[0]);
+          foundBuiltin = true;
+          ret = builtins[j].func(
+              IS.Statements.arr[i].pipeline.arr[0]);
 
-        if (ret == -1) {
-          goto stop_execute;
-        } else if (ret == EXIT_SHELL) {
-          goto stop_execute;
-        } else {
-          ret = 0;
+          if (ret == -1) {
+            goto stop_execute;
+          } else if (ret == EXIT_SHELL) {
+            goto stop_execute;
+          } else {
+            ret = 0;
+          }
         }
       }
     }

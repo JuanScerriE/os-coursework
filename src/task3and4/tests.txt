@@ -1,10 +1,10 @@
-ls -al | figlet > test.out; ver
-ls -al | figlet> test.out ; cd ..
-ls -al || figlet> test.out
-;;;; ls -al ;;;;; figlet<test.in>>test.out ;
-ls-al >> hello.out; >>>;
-"ls -a"ll | figlet > test.out; ver
-ls"/" | figlet
-ls \"\\/\" | figlet
-ls \"" | figlet"
-ls \"" | figlet
+ls -al | figlet > test.out; ver (Valid)
+ls -al | figlet> test.out ; cd .. (Valid)
+ls -al || figlet> test.out (Invalid)
+;;;; ls -al ;;;;; figlet<test.in>>test.out ; (Valid)
+ls-al >> hello.out; >>>; (Invalid)
+"ls -a"ll | figlet > test.out; ver (Valid)
+ls"/" | figlet (Valid)
+ls \"\\/\" | figlet (Valid)
+ls \"" | figlet" (Valid)
+ls \"" | figlet (Invalid)

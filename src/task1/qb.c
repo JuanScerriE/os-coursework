@@ -38,12 +38,10 @@ static inline pid_t fork_exec_pipe(char **args, int closefd,
     return -1;
   } else if (pid == 0) {  // Left Child
     close(closefd);
-
     if (dup2(oldfd, newfd) == -1)
       return -1;
 
     close(oldfd);
-
     if (execvp(args[0], args) == -1)
       return -1;
   }

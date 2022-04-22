@@ -81,9 +81,12 @@ static inline pid_t execute_pipeline_async(
     // want to have zombies during a pipe.
     if (waitpid(pid, &status, options) == -1)
       return -1;
-
-    // Possibility of handling status.
   }
+
+  // NOTE: This results in zombies which are not reaped by
+  // the parent.
+  /* if (waitpid(pid, &status, options) == -1) */
+  /*   return -1; */
 
   return pid;
 }
@@ -96,9 +99,33 @@ int main(void) {
   char ***pipeline =
       emalloc(pipeline_size * sizeof(char **));
 
-  goto start;
+  while ((line = linenoise("(Enter to Stop) > ")) != NULL) {
+    if (*line != '\0') {
+      if (pipeline_len >= pipeline_size) {
+        pipeline_size <<= 1;
+        pipeline = erealloc(
+            pipeline, pipeline_size * sizeof(char **));
+      }
 
-execute_pipe:
+      if (pipeline_len < 16)
+        pipeline[pipeline_len++] =
+            tokenise(line, " \n\r\t");
+      else
+        fprintf(stderr,
+                "Maximum number of processes is 16!\n");
+    } else {
+      break;
+    }
+
+    free(line);
+    line = NULL;
+  }
+
+  if (line != NULL) {
+    free(line);
+    line = NULL;
+  }
+
   if (pipeline_len >= pipeline_size) {
     pipeline_size <<= 1;
     pipeline =
@@ -118,27 +145,6 @@ execute_pipe:
 
   if (pipeline != NULL)
     free(pipeline);
-
-start:
-  while ((line = linenoise("(Enter to Stop) > ")) != NULL) {
-    if (*line != '\0') {
-      if (pipeline_len >= pipeline_size) {
-        pipeline_size <<= 1;
-        pipeline = erealloc(
-            pipeline, pipeline_size * sizeof(char **));
-      }
-
-      pipeline[pipeline_len++] = tokenise(line, " \n\r\t");
-    } else {
-      // We leak memory if the line is empty. However, this
-      // should not be an issue since. This is for testing
-      // purposes.
-      free(line);
-      goto execute_pipe;
-    }
-
-    free(line);
-  }
 
   return EXIT_SUCCESS;
 }
