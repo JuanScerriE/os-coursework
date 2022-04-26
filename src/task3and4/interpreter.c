@@ -7,7 +7,7 @@
 
 // Define DEBUG to get debugging information from stderr.
 // You can use redirection to output the errors into a file.
-/* #define DEBUG */
+#define DEBUG
 
 /* ------------------------------------------- */
 /* Types */
@@ -319,78 +319,6 @@ static inline int emitSep(void) {
   return addToken(tok);
 }
 
-static inline int emitQuotedString(void) {
-  CSNext();
-  Token tok = {STRING, 0, NULL};
-  size_t alc = INIT_SIZE;
-  tok.str = malloc(sizeof(char) * alc);
-
-  if (tok.str == NULL) {
-    perror("emitQuotedString");
-    return -1;
-  }
-
-  char ch = CSPeek();
-
-  while (ch != '"') {
-    ch = CSNext();
-
-    if (isCSEnd()) {
-      fprintf(stderr,
-              "emitQuotedString: Non-closed string\n");
-      return -1;
-    }
-
-    if (ch == '\\') {
-      switch (ch = CSNext()) {
-        case '\\':
-        case '"':
-          // DO NOTHING
-          break;
-        default:
-          fprintf(stderr,
-                  "emitQuotedString: Invalid escape "
-                  "sequence\n");
-          return -1;
-      }
-    }
-
-    if (tok.len >= alc) {
-      alc += GROW_SIZE;
-      char *tmp = realloc(tok.str, sizeof(char) * alc);
-
-      if (tmp == NULL) {
-        perror("emitQuotedString");
-        return -1;
-      } else {
-        tok.str = tmp;
-      }
-    }
-
-    tok.str[tok.len++] = ch;
-
-    ch = CSPeek();
-  }
-
-  CSNext();
-
-  if (tok.len >= alc) {
-    alc += GROW_SIZE;
-    char *tmp = realloc(tok.str, sizeof(char) * alc);
-
-    if (tmp == NULL) {
-      perror("emitQuotedString");
-      return -1;
-    } else {
-      tok.str = tmp;
-    }
-  }
-
-  tok.str[tok.len] = '\0';
-
-  return addToken(tok);
-}
-
 static inline int emitString(void) {
   Token tok = {STRING, 0, NULL};
   size_t alc = INIT_SIZE;
@@ -406,35 +334,82 @@ static inline int emitString(void) {
   while (ch != ' ' && ch != '\t' && ch != '\r' &&
          ch != '\v' && ch != '\f' && ch != '|' &&
          ch != '<' && ch != '>' && ch != '\n' &&
-         ch != ';' && ch != '"' && ch != '\0') {
+         ch != ';' && ch != '\0') {
     ch = CSNext();
 
-    if (ch == '\\') {
-      switch (ch = CSNext()) {
-        case '\\':
-        case '"':
-          // DO NOTHING
-          break;
-        default:
+    if (ch == '"') {
+      ch = CSPeek();
+
+      while (ch != '"') {
+        ch = CSNext();
+
+        if (isCSEnd()) {
           fprintf(stderr,
-                  "emitString: Invalid escape sequence\n");
+                  "emitString: Non-closed string\n");
           return -1;
+        }
+
+        if (ch == '\\') {
+          switch (ch = CSNext()) {
+            case '\\':
+            case '"':
+              // DO NOTHING
+              break;
+            default:
+              fprintf(
+                  stderr,
+                  "emitString: Invalid escape sequence\n");
+              return -1;
+          }
+        }
+
+        if (tok.len >= alc) {
+          alc += GROW_SIZE;
+          char *tmp = realloc(tok.str, sizeof(char) * alc);
+
+          if (tmp == NULL) {
+            perror("emitString");
+            return -1;
+          } else {
+            tok.str = tmp;
+          }
+        }
+
+        tok.str[tok.len++] = ch;
+
+        ch = CSPeek();
       }
-    }
 
-    if (tok.len >= alc) {
-      alc += GROW_SIZE;
-      char *tmp = realloc(tok.str, sizeof(char) * alc);
-
-      if (tmp == NULL) {
-        perror("emitString");
-        return -1;
-      } else {
-        tok.str = tmp;
+      CSNext();
+    } else {
+      if (ch == '\\') {
+        switch (ch = CSNext()) {
+          case '\\':
+          case '"':
+            // DO NOTHING
+            break;
+          default:
+            fprintf(
+                stderr,
+                "emitString: Invalid escape sequence\n");
+            return -1;
+        }
       }
-    }
 
-    tok.str[tok.len++] = ch;
+      if (tok.len >= alc) {
+        alc += GROW_SIZE;
+        char *tmp = realloc(tok.str, sizeof(char) * alc);
+
+        if (tmp == NULL) {
+          perror("emitString");
+          return -1;
+        } else {
+          tok.str = tmp;
+        }
+      }
+
+      tok.str[tok.len++] = ch;
+    }
 
     ch = CSPeek();
   }
@@ -498,11 +473,6 @@ static inline int tokenise(char *str) {
       case '\n':
       case ';':
         if (emitSep() == -1)
-          goto fail_tokenise;
-        break;
-        // (QUOTED) STRING
-      case '"':
-        if (emitQuotedString() == -1)
           goto fail_tokenise;
         break;
         // STRING
@@ -603,10 +573,13 @@ static inline int parse(void) {
             tok = TSNext();
 
           switch (tok.type) {
+            case PIPE:
+            case IN:
             case OUT:
             case APPEND:
               break;
             case SEP:
+              IS.Statements.len++;
               start = true;
               break;
             default:
@@ -628,6 +601,11 @@ static inline int parse(void) {
             tok = TSNext();
 
           switch (tok.type) {
+            case PIPE:
+            case IN:
+            case OUT:
+            case APPEND:
+              break;
             case SEP:
               IS.Statements.len++;
               start = true;
@@ -754,19 +732,12 @@ static inline int genStatements(void) {
           commandSize++;
         } else if (IS.Tokens.arr[y].type == PIPE) {
           break;
-        } else {
-          // Make sure to go to the start of a new command
-          // if the pipeline is done.
-          //
-          // This is done since you might have redirection
-          // tokens. Not accounting for those throws of the
-          // grouping.
-          while (y < IS.Tokens.len &&
-                 IS.Tokens.arr[y].type != SEP)
-            y++;
-
-          break;
+        } else if (IS.Tokens.arr[y].type == IN ||
+                   IS.Tokens.arr[y].type == OUT ||
+                   IS.Tokens.arr[y].type == APPEND) {
+          y++;
         }
+
         y++;
       }
 
@@ -843,7 +814,6 @@ static inline int execute(void) {
 #endif
 
     for (size_t j = 0; j < get_num_of_builtins(); j++) {
-
 #ifdef DEBUG
       fprintf(stderr, "BUILTIN: %s\n", builtins[j].name);
 #endif
