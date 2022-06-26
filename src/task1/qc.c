@@ -19,7 +19,7 @@
  * forked process if successful. Otherwise it returns -1.
  */
 
-static inline pid_t execute_pipeline(char **pipeline[]) {
+pid_t execute_pipeline(char **pipeline[]) {
   int current_fd[2];
   int previous_fd[2];
   pid_t pid = -1;
@@ -36,6 +36,8 @@ static inline pid_t execute_pipeline(char **pipeline[]) {
       return -1;
 
     if (pid == 0) {  // Child
+      // Connect the read-end of previous pipe only if the
+      // current process is not the last.
       if (i > 0) {
         // Disconnect write-end of previous pipe.
         close(previous_fd[WR]);

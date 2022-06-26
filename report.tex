@@ -77,7 +77,8 @@ marginparwidth=0pt]{geometry}
 	commentstyle=\color{codegray}\itshape,
 	keywordstyle=\color{codepurple},
 	stringstyle=\color{codegreen},
-	aboveskip=15pt,
+	aboveskip=25pt,
+  belowskip=10pt,
 	captionpos=b,
 	abovecaptionskip=12.5pt,
 	breaklines=true,
@@ -135,6 +136,8 @@ B.Sc. (Hons)(Melit.) Computing Science and Mathematics (First Year)}
 \tableofcontents
 
 \clearpage
+
+\listoffigures
 
 \lstlistoflistings
 
@@ -293,7 +296,7 @@ easier testing.
 
 In this section the majority of the implemented algorithms and
 design will be explained through diagrams/images. Where
-necessary supplementary explanation will be provided and codes
+necessary supplementary explanation will be provided and code
 snippets will be inserted.
 
 \subsubsection{Design of Task 1}
@@ -304,82 +307,94 @@ snippets will be inserted.
 \caption{A drawing of the \texttt{fork-exec-wait} pattern.}
 \end{figure}
 
+\lstinputlisting[caption={An implementation of the
+\texttt{fork-exec-wait} pattern.},language=C, firstline=24,
+lastline=34]{src/task1/qa.c}
+
 For question (a), the requested algorithm implements a simple
 \texttt{fork-exec-wait} pattern. This pattern is used to allow
 processes to load other programs.
 
-Nevertheless, this might not always be enough. If two or more
-processes need to communicate with each other, they need to make
-use of Inter-Process Communication (IPC) mechanisms. For
-question (b), two processes will be allowed to communicate
-together through a \ul{pipe} an OS provided IPC mechanism.
-
-\textit{Note:} Configuration of the pipes is done after
-\texttt{fork()} and before \texttt{exec()}.
-
-\lstinputlisting[caption={Configuration after \texttt{fork()}
-and before \texttt{execvp()}.},language=C, firstline=37,
-lastline=47]{src/task1/qb.c}
-
 \begin{figure}[H]
 \centering
 \includegraphics{task1qb}
-\caption{A drawing of the procedure used to connect two processes
-through a pipe.}
+\caption{An illustration of the pattern used to connect two
+processes through a pipe.}
+\label{create_pipe}
 \end{figure}
+
+\newpage
+
+The pattern described in \ref{create_pipe} is used to allow two
+processes to communicate with each other. This communication is
+facilitated by a pipe. Pipes are an Inter-Process
+Communication (IPC) mechanism provided by the OS.
+
+\lstinputlisting[caption={Configuration of a pipe after
+\texttt{fork()} and before \texttt{execvp()}.},language=C,
+firstline=37, lastline=47]{src/task1/qb.c}
+
+\textit{Note:} Configuration of the pipes is done after
+\texttt{fork()} and before \texttt{execvp()} (or any other
+variant of \texttt{exec()}).
 
 \begin{figure}[H]
 \centering
 \includegraphics{task1qc1}
-\caption{A drawing of the start procedure and intermediate
-procedure used to construct a pipeline.}
+\caption{An illustration of the \ul{start} and \ul{middle}
+patterns used to construct an arbitrary pipeline.}
 \label{gen_pipeline}
 \end{figure}
 
 \newpage
 
+\begin{figure}[H]
+\centering
+\includegraphics{task1qc2}
+\caption{An illustration of the \ul{end} pattern used to
+construct an arbitrary pipeline.}
+\label{end_pipeline}
+\end{figure}
+
 For question (c), a new variant was created called
-\texttt{execute\_pipeline()}. As input, it takes in a
-\texttt{NULL}-terminated array of programs (of type \texttt{char
-**}). Then, it constructs a \ul{pipeline} which allows every
-program to communicate with the next program in the array. This
-is done through the procedure described in figure
-\ref{gen_pipeline}.
+\texttt{execute\_pipeline(char **)}. As input, it takes in a
+\texttt{NULL}-terminated array of programs (including there
+arguments).
+
+The function constructs an arbitrary \ul{pipeline} which allows
+every program to communicate with the next program. This is
+achieved through the patterns illustrated in figures
+\ref{gen_pipeline} and \ref{end_pipeline}.
+
+\lstinputlisting[caption={The implementation of the described
+mechanism for constructing a pipeline.},language=C,
+firstline=22, lastline=79]{src/task1/qc.c}
+
+In particular there are three distinct patterns which the
+algorithm has to perform. These are labelled as \ul{start},
+\ul{middle} (illustrated in figure \ref{gen_pipeline}) and
+\ul{end} (illustrated in figure \ref{end_pipeline}). In
+particular the middle step is repeated until the end is reached.
+
+For the actual implementation the middle pattern is augmented
+with \texttt{if}-statements to cater for the start and end
+patterns.
 
 \textit{Note:} There is no need to know the length of the
 pipeline. This is because the only four file descriptors which
 the parent has awareness of at any one point in time during the
-construction of the pipeline, are the file descriptors 
+construction of the pipeline, are the file descriptors
 associated with the previous and current pipe.
-
-\begin{figure}[H]
-\centering
-\includegraphics{task1qc2}
-\caption{A drawing of the end procedure used to construct a
-pipeline.}
-\label{end_pipeline}
-\end{figure}
-
-In particular there are three distinct unique procedures which
-the algorithm has to perform. These are labelled as \ul{start},
-\ul{intermediate} (described in figure \ref{gen_pipeline}) and
-\ul{end} (described in figure \ref{end_pipeline}). In particular
-the intermediate step is repeated until the end is reached.
 
 \lstinputlisting[caption={\texttt{waitpid()} being called in the
 parent for every forked process.},language=C, firstline=80,
-lastline=89]{src/task1/qd.c}
-
-\newpage
+lastline=83]{src/task1/qd.c}
 
 For question (d), an \texttt{options} parameter was added to the
 previous function and a call to \texttt{waitpid()} is made for
 every forked process (see the above listing).
 
-The function blocks for every process to ensure no zombie
-processes are present. Figure \ref{zombies} demonstrates a
-version of the question where the function blocks only for
-the last process.
+\vspace{10pt}
 
 \begin{figure}[H]
 \centering
@@ -389,34 +404,62 @@ present because the function waits only for the last process.}
 \label{zombies}
 \end{figure}
 
+The function blocks for every process to ensure no zombie
+processes are present. Figure \ref{zombies} demonstrates a
+version of the question where the function blocks only for the
+last process.
+
+\newpage
+
 \lstinputlisting[caption={Redirecting pipeline
 input.},language=C, firstline=95, lastline=99]{src/task1/qe.c}
 
 \lstinputlisting[caption={Redirecting pipeline
 output.},language=C, firstline=123, lastline=129]{src/task1/qe.c}
 
-For question (e), a simple addition of three extra parameters and
-two if-statements in the start and end steps suffice to redirect
-the input and the output of the pipe. The third parameter is a
-flag used to choose between appending to a file or truncating a
-file.
+For question (e), a simple addition of three extra parameters
+and two \texttt{if}-statements in the start and end stages
+suffice to redirect the input and the output of the pipe. The
+third parameter is a flag used to choose between appending to a
+file or truncating a file.
+
+\newpage
 
 \subsubsection{Design of Task 2}
 
-For question (a), the structure of what needs to be implemented is
-laid out clearly in the question. Specifically, the creation of
-a structure for holding function pointers and function names
+\lstinputlisting[caption={Structure to support builtin
+commands.}, language=C, firstline=71,
+lastline=81]{src/task2/qab.c}
+
+For question (a), what needs to be implemented is laid out
+clearly in the question. Specifically, the creation of a
+structure for holding function pointers and function names
 together. 
 
-Then a linear search is performed every time before trying to
-execute an external process to check if the specified command is
-a builtin.
+\lstinputlisting[caption={\texttt{for}-loop to check if the
+command is a builtin.}, language=C, firstline=91,
+lastline=95]{src/task2/qab.c}
+
+A linear search is performed every time before trying to execute
+an external process to check if the specified command is a
+builtin.
 
 For question (b) a number of builtin functions had to be
 implemented.
 
 \texttt{sh\_exit()} is the simplest of the functions simply
 calling the \texttt{exit()} function from \texttt{stdlib.h}.
+
+\textit{Note:} In \textit{Task 3} and \textit{Task 4}
+\texttt{sh\_exit()} was changed. These changes were made to
+ensure proper termination (i.e. adequate relinquishing of
+allocated resources).
+
+\newpage
+
+\lstinputlisting[caption={The \texttt{\#define}s for
+\texttt{sh\_ver()}.}, language=C, firstline=18,
+lastline=22]{src/task2/qab.c}
 
 \texttt{sh\_ver()} prints a formatted string to \texttt{stdout}
 containing the author's name, version and a small message. The

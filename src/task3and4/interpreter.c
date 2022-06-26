@@ -7,7 +7,7 @@
 
 // Define DEBUG to get debugging information from stderr.
 // You can use redirection to output the errors into a file.
-#define DEBUG
+/* #define DEBUG */
 
 /* ------------------------------------------- */
 /* Types */

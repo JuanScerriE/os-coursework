@@ -77,8 +77,8 @@ static inline pid_t execute_pipeline_async(
     previous_fd[RD] = current_fd[RD];
     previous_fd[WR] = current_fd[WR];
 
-    // NOTE: This is the code we'd want to have if we do not
-    // want to have zombies during a pipe.
+    // NOTE: This is the code we would want to have if we do
+    // not want to have zombies during a pipe.
     if (waitpid(pid, &status, options) == -1)
       return -1;
   }
