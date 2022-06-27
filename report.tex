@@ -516,10 +516,6 @@ Shell' (\texttt{tish}).
 it processes user input lines.}
 \end{figure}
 
-\lstinputlisting[caption={The \texttt{interpret()} function
-calls and handles each of the respective functions.},language=C,
-firstline=871, lastline=889]{src/task3and4/interpreter.c}
-
 In the interpreter there is one static global structure which is
 used throughout all of the components of the interpreter. These
 components/functions are the following: \texttt{tokenise()},
@@ -532,6 +528,8 @@ components/functions are the following: \texttt{tokenise()},
 \includegraphics{tokeniser}
 \caption{A simple illustration of how the tokeniser works.}
 \end{figure}
+
+\newpage
 
 \lstinputlisting[caption={The \texttt{CharStream}
 structure.},language=C, firstline=16,
@@ -563,8 +561,13 @@ structure.},language=C,firstline=37,
 lastline=41]{src/task3and4/interpreter.c}
 
 \texttt{parse()} initialises the \texttt{TokenStream} and checks
-if the syntax of the tokens is correct. The general form of a
-statement is:
+if the syntax of the tokens is correct. It also counts the
+number of statements in single input.
+
+\textit{Note:} Multiple statements within a single input are
+separated by a semicolon (\texttt{;}).
+
+The general form of a statement is:
 
 \begin{verbatim}
 pipeline := <redirect_cmd> | <pipeline> "|" <redirect_cmd>
@@ -576,21 +579,23 @@ cmd := str | <cmd> str
 str := (contiguous string of characters not delimited by space or in quotes)
 \end{verbatim}
 
-If a collection of tokens cannot fit into the above
-production rules, the parser will print an error and clean any
-allocated resources.
+\textit{Note:} Characters such as \texttt{\textless},
+\texttt{\textgreater}, \texttt{{\textgreater}{\textgreater}} are
+optional. For example there is no need for input or/and output
+redirection. Nevertheless, if for example a
+\texttt{\textgreater} is present it must be followed by the
+\texttt{infile}. In the function there are similar rules.
 
-\textit{Note:} Many of the characters are optional for example
-there is no need for input or/and output redirection.
-Nevertheless, if for example a \texttt{>} is present it must be
-followed by the \texttt{infile}. In the function there are many
-similar rules.
+If a collection of tokens cannot fit into the above production
+rules, the parser will print an error and clean any allocated
+resources.
 
-After checking that the tokens are syntactically correct, other
-functions specifically \texttt{genStatements()} can assume a lot
-about the structure of the tokens. The \texttt{genStatements()}
+After checking that the tokens are syntactically correct, the
+\texttt{genStatements()} function can assume certain things
+about structure of the tokens. The \texttt{genStatements()}
 function does two main things. It counts the number of commands
-in a pipeline and the number of strings per command.
+in a pipeline and the number of strings per command. This is
+done for every statement.
 
 Having this information allows the function to allocate the
 exact amount of memory required for the statements which are
@@ -600,6 +605,10 @@ then populated accordingly.
 populating are all done simultaneously throughout the code. This
 is because it is more convenient for certain tasks to be done
 when the information is directly available.
+
+\lstinputlisting[caption={Code for handling different return
+codes.},language=C,firstline=832,
+lastline=838]{src/task3and4/interpreter.c}
 
 The \texttt{execute()} function has two parts. The first part
 checks if the command is a builtin. If the command is a builtin
@@ -613,6 +622,12 @@ process fails. The latter case is special because it avoids the
 possibility of having two concurrent shell processes where the
 forked shell spins because its \texttt{stdin} is bound to a
 pipe.
+
+\newpage
+
+\lstinputlisting[caption={The \texttt{interpret()} function
+calls and handles each of the respective functions.},language=C,
+firstline=871, lastline=889]{src/task3and4/interpreter.c}
 
 The final function is \texttt{interpret()} and it collects all
 of these functions together into one function which can be

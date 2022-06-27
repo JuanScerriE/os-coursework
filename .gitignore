@@ -12,4 +12,3 @@ cmake-build-debug
 *.run.xml
 *.toc
 *.synctex.gz
-images
