@@ -1,12 +1,25 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\defcounter {refsection}{0}\relax 
 \contentsline {figure}{\numberline {1}{\ignorespaces A drawing of the \texttt {fork-exec-wait} pattern.}}{5}{figure.1}%
-\contentsline {figure}{\numberline {2}{\ignorespaces An illustration of the pattern used to connect two processes through a pipe.}}{6}{figure.2}%
-\contentsline {figure}{\numberline {3}{\ignorespaces An illustration of the \ul {start} and \ul {middle} patterns used to construct an arbitrary pipeline.}}{8}{figure.3}%
-\contentsline {figure}{\numberline {4}{\ignorespaces An illustration of the \ul {end} pattern used to construct an arbitrary pipeline.}}{9}{figure.4}%
-\contentsline {figure}{\numberline {5}{\ignorespaces A screenshot of zombie processes (in \texttt {htop}) present because the function waits only for the last process.}}{11}{figure.5}%
-\contentsline {figure}{\numberline {6}{\ignorespaces A drawing of how the files used for \textit {Task 3} and \textit {Task 4} are linked (through \texttt {\#include}).}}{15}{figure.6}%
-\contentsline {figure}{\numberline {7}{\ignorespaces A drawing of how the interpreter is structured and how it processes user input lines.}}{16}{figure.7}%
-\contentsline {figure}{\numberline {8}{\ignorespaces This is a simple description of how the tokeniser works.}}{16}{figure.8}%
-\contentsline {figure}{\numberline {9}{\ignorespaces this is a simple description of how the parser works.}}{17}{figure.9}%
-\contentsline {figure}{\numberline {10}{\ignorespaces A screenshot of the \texttt {q1d} executable running under \texttt {valgrind}.}}{19}{figure.10}%
-\contentsline {figure}{\numberline {11}{\ignorespaces A screenshot of the \texttt {q2ab} executable running under \texttt {valgrind}.}}{20}{figure.11}%
-\contentsline {figure}{\numberline {12}{\ignorespaces A screenshot of the \texttt {tish} executable running with \texttt {DEBUG} defined.}}{22}{figure.12}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2}{\ignorespaces An illustration of the pattern used to connect two processes through a pipe.}}{5}{figure.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3}{\ignorespaces An illustration of the \ul {start} and \ul {middle} patterns used to construct an arbitrary pipeline.}}{6}{figure.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4}{\ignorespaces An illustration of the \ul {end} pattern used to construct an arbitrary pipeline.}}{7}{figure.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5}{\ignorespaces A screenshot of zombie processes (in \texttt {htop}) present because the function waits only for the last process.}}{9}{figure.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6}{\ignorespaces A drawing of how the files used for \textit {Task 3} and \textit {Task 4} are linked (through \texttt {\#include}).}}{13}{figure.6}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {7}{\ignorespaces A drawing of how the interpreter is structured and how it processes user input lines.}}{13}{figure.7}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {8}{\ignorespaces This is a simple description of how the tokeniser works.}}{13}{figure.8}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9}{\ignorespaces this is a simple description of how the parser works.}}{13}{figure.9}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {10}{\ignorespaces A screenshot of the \texttt {q1d} executable running under \texttt {valgrind}.}}{14}{figure.10}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {11}{\ignorespaces A screenshot of the \texttt {q2ab} executable running under \texttt {valgrind}.}}{15}{figure.11}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {12}{\ignorespaces A screenshot of the \texttt {tish} executable running with \texttt {DEBUG} defined.}}{16}{figure.12}%

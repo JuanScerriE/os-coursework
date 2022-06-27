@@ -66,11 +66,7 @@ marginparwidth=0pt]{geometry}
 
 % PACKAGE CONFIG
 
-% \usetikzlibrary{calc, arrows, positioning, circuits.logic.US}
 \graphicspath{ {./images/} }
-
-% Biblography
-% \addbibresource{dsa.bib}
 
 \lstdefinestyle{code}{
 	basicstyle=\ttfamily\small,
@@ -294,10 +290,9 @@ easier testing.
 
 \subsection{Design}
 
-In this section the majority of the implemented algorithms and
-design will be explained through diagrams/images. Where
-necessary supplementary explanation will be provided and code
-snippets will be inserted.
+In this section the majority of the design will be explained
+through illustrations. Where necessary supplementary explanation
+will be provided and code snippets will be inserted.
 
 \subsubsection{Design of Task 1}
 
@@ -382,9 +377,9 @@ patterns.
 
 \textit{Note:} There is no need to know the length of the
 pipeline. This is because the only four file descriptors which
-the parent has awareness of at any one point in time during the
-construction of the pipeline, are the file descriptors
-associated with the previous and current pipe.
+the parent process has awareness of at any one point in time
+during the construction of the pipeline, are the file
+descriptors associated with the previous and current pipe.
 
 \lstinputlisting[caption={\texttt{waitpid()} being called in the
 parent for every forked process.},language=C, firstline=80,
@@ -427,14 +422,13 @@ file or truncating a file.
 
 \subsubsection{Design of Task 2}
 
-\lstinputlisting[caption={Structure to support builtin
+\lstinputlisting[caption={Code for supporting builtin
 commands.}, language=C, firstline=71,
 lastline=81]{src/task2/qab.c}
 
 For question (a), what needs to be implemented is laid out
-clearly in the question. Specifically, the creation of a
-structure for holding function pointers and function names
-together. 
+clearly in the question. Specifically, the creation of an array
+for holding function pointers and function names together. 
 
 \lstinputlisting[caption={\texttt{for}-loop to check if the
 command is a builtin.}, language=C, firstline=91,
@@ -504,7 +498,7 @@ where all the new functionality is present. Specifically, it
 contains, the tokeniser, syntactic checker and translator.
 Moreover, it also contains a simple \texttt{execute()} function
 which interacts with the components in \texttt{external.c} and
-\texttt{builtin.c} through the header files.
+\texttt{builtin.c} through header files.
 
 \texttt{linenoise.c} is the suggest line editing library, which
 allows for the easy creation of prompts and command line user
@@ -522,6 +516,10 @@ Shell' (\texttt{tish}).
 it processes user input lines.}
 \end{figure}
 
+\lstinputlisting[caption={The \texttt{interpret()} function
+calls and handles each of the respective functions.},language=C,
+firstline=871, lastline=889]{src/task3and4/interpreter.c}
+
 In the interpreter there is one static global structure which is
 used throughout all of the components of the interpreter. These
 components/functions are the following: \texttt{tokenise()},
@@ -532,43 +530,54 @@ components/functions are the following: \texttt{tokenise()},
 \begin{figure}[H]
 \centering
 \includegraphics{tokeniser}
-\caption{This is a simple description of how the
-tokeniser works.}
+\caption{A simple illustration of how the tokeniser works.}
 \end{figure}
+
+\lstinputlisting[caption={The \texttt{CharStream}
+structure.},language=C, firstline=16,
+lastline=20]{src/task3and4/interpreter.c}
 
 The \texttt{tokenise()} function makes use of a static global
 called \texttt{CharStream}. This allows the tokeniser to
 traverse a character array without losing state across different
-function calls. This makes the code more readable and
-manageable.
+function calls. This makes the code more clean.
+
+\lstinputlisting[caption={The section in \texttt{emitString()}
+which handles escaping.},language=C, firstline=352,
+lastline=364]{src/task3and4/interpreter.c}
 
 The most important functions in the tokeniser are the emitters.
 They basically emit a token which can later be used to check if
 the user input is syntactically correct. Emitted tokens are
-stored in the interpreter state. Escaping of characters is dealt
-with in two emitters: \texttt{emitString()} and
-\texttt{emitQuotedString()}.
+stored in the interpreter state. Escaping of characters is
+performed in \texttt{emitString()}.
 
 \begin{figure}[H]
 \centering
 \includegraphics{parser}
-\caption{this is a simple description of how the
-parser works.}
+\caption{A simple illustration of how the parser works.}
 \end{figure}
 
+\lstinputlisting[caption={The \texttt{TokenStream}
+structure.},language=C,firstline=37,
+lastline=41]{src/task3and4/interpreter.c}
+
 \texttt{parse()} initialises the \texttt{TokenStream} and checks
-if syntax of the tokens is correct. The general form of a
+if the syntax of the tokens is correct. The general form of a
 statement is:
 
 \begin{verbatim}
-statement := cmd1 | cmd2 | ... | cmdN  < infile {> / >>} outfile
-cmd := prg arg1 arg2 ... argN
-prg := str
-arg := str
+pipeline := <redirect_cmd> | <pipeline> "|" <redirect_cmd>
+redirect_cmd := <cmd>
+              | <redirect_cmd> "<" <str>
+              | <redirect_cmd> ">" <str>
+              | <redirect_cmd> ">>" <str> 
+cmd := str | <cmd> str
+str := (contiguous string of characters not delimited by space or in quotes)
 \end{verbatim}
 
 If a collection of tokens cannot fit into the above
-production rule, the parser will print an error and clean any
+production rules, the parser will print an error and clean any
 allocated resources.
 
 \textit{Note:} Many of the characters are optional for example
