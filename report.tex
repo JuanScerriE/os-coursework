@@ -191,10 +191,10 @@ Systems Programming 1 Coursework}
 
 The coursework was broken up into four tasks.
 
-All the questions of \textit{Task 1} have been answered
+All the questions from \textit{Task 1} have been answered
 separately, each having there own \texttt{.c} file.
 
-The two questions of \textit{Task 2} where answered in one
+The two questions from \textit{Task 2} where answered in one
 \texttt{.c} file.
 
 \textit{Task 3} and \textit{Task 4} where done simultaneously to
@@ -419,7 +419,7 @@ file or truncating a file.
 
 \subsubsection{Design of Task 2}
 
-\lstinputlisting[caption={Code for supporting builtin
+\lstinputlisting[caption={Code structures for supporting builtin
 commands.}, language=C, firstline=71,
 lastline=81]{src/task2/qab.c}
 
@@ -513,6 +513,10 @@ Shell' (\texttt{tish}).
 it processes user input lines.}
 \end{figure}
 
+\lstinputlisting[caption={The \texttt{InterpreterState}
+structure.},language=C,firstline=53,
+lastline=63]{src/task3and4/interpreter.c}
+
 In the interpreter there is one static global structure which is
 used throughout all of the components of the interpreter. These
 components/functions are the following: \texttt{tokenise()},
@@ -526,8 +530,6 @@ components/functions are the following: \texttt{tokenise()},
 \caption{A simple illustration of how the tokeniser works.}
 \end{figure}
 
-\newpage
-
 \lstinputlisting[caption={The \texttt{CharStream}
 structure.},language=C, firstline=16,
 lastline=20]{src/task3and4/interpreter.c}
@@ -536,6 +538,8 @@ The \texttt{tokenise()} function makes use of a static global
 called \texttt{CharStream}. This allows the tokeniser to
 traverse a character array without losing state across different
 function calls. This makes the code more clean.
+
+\newpage
 
 \lstinputlisting[caption={The section in \texttt{emitString()}
 which handles escaping.},language=C, firstline=352,
@@ -553,6 +557,8 @@ performed in \texttt{emitString()}.
 \caption{A simple illustration of how the parser works.}
 \end{figure}
 
+\newpage
+
 \lstinputlisting[caption={The \texttt{TokenStream}
 structure.},language=C,firstline=37,
 lastline=41]{src/task3and4/interpreter.c}
@@ -561,8 +567,8 @@ lastline=41]{src/task3and4/interpreter.c}
 if the syntax of the tokens is correct. It also counts the
 number of statements in single input.
 
-\textit{Note:} Multiple statements within a single input are
-separated by a semicolon (\texttt{;}).
+\textit{Note:} Multiple statements in a single input have to
+be separated by a semicolon (\texttt{;}).
 
 The general form of a statement is:
 
@@ -580,7 +586,7 @@ str := (contiguous string of characters not delimited by space or in quotes)
 \texttt{\textgreater}, \texttt{{\textgreater}{\textgreater}} are
 optional. For example there is no need for input or/and output
 redirection. Nevertheless, if for example a
-\texttt{\textgreater} is present it must be followed by the
+\texttt{\textgreater} is present it must be followed by an
 \texttt{infile}. In the function there are similar rules.
 
 If a collection of tokens cannot fit into the above production
@@ -591,8 +597,8 @@ After checking that the tokens are syntactically correct, the
 \texttt{genStatements()} function can assume certain things
 about structure of the tokens. The \texttt{genStatements()}
 function does two main things. It counts the number of commands
-in a pipeline and the number of strings per command. This is
-done for every statement.
+in a pipeline and the number of strings (or arguments) per
+command. This is done for every statement.
 
 Having this information allows the function to allocate the
 exact amount of memory required for the statements which are
@@ -627,11 +633,11 @@ calls and handles each of the respective functions.},language=C,
 firstline=871, lastline=889]{src/task3and4/interpreter.c}
 
 The final function is \texttt{interpret()} and it collects all
-of these functions together into one function which can be
-called in \texttt{tish.c}. Specifically, in \texttt{tish.c}
-there is an event loop which waits for user input and then
-passes the user input to \texttt{interpret()} and the process
-repeats until the user decides to exit.
+of these functions together into one function which is called in
+\texttt{tish.c}. Specifically, in \texttt{tish.c} there is an
+event loop which waits for user input and then passes the user
+input to \texttt{interpret()} and the process repeats until the
+user decides to exit.
 
 \section{Testing Methodology}
 
@@ -675,11 +681,11 @@ Testing for \textit{Task 2} was performed using a similar method
 to \textit{Task 1}.
 
 \textit{Note:} The implementation of \texttt{exit} in this task
-leaks memory because it is using \texttt{exit()} with freeing
+leaks memory because it is using \texttt{exit()} without freeing
 any potentially allocated data. This has been addressed in the
 actual shell.
 
-\subsection{Testing for Task 3}
+\subsection{Testing for Task 3}\label{testing-task3}
 
 Testing for \textit{Task 3} is a bit more complicated because it
 requires a lot of debug output to ensure that tokenisation,
@@ -712,9 +718,10 @@ They can be activated by defining \texttt{DEBUG} in the
 
 \lstinputlisting[caption={The \texttt{tests.txt} file.}]{src/task3and4/tests.txt}
 
-A list of test input can be found at
-\texttt{src/task3and4/tests.txt}. There are ten test inputs.
-They are all identified as being either valid or invalid.
+A list of test inputs can be found at
+\texttt{src/task3and4/tests.txt}. There are eleven test inputs.
+They are all identified as being either syntactically valid or
+invalid.
 
 \section{Issues \& Bugs}
 
@@ -729,20 +736,20 @@ the code and the functionality of the shell.
 \item
   The way in which the shell exits could be improved through the
   use of an exit handler.
-\item
-  A revamped interpreter, generating an actual Abstract Syntax
-  Tree (AST) could help both readability and versatility. Along
-  with allowing the shell to conform to the POSIX standard more
-  easily. Currently, the behaviour of \texttt{tish} is different
-  from \texttt{bash}. For example the following command
-  \texttt{figlet | sed "s/ /*/g" \textless\ infile.txt} is
-  different in \texttt{tish} because of the fact that
-  \texttt{infile.txt} is being bound to the \texttt{stdin} of
-  \texttt{figlet} instead of that of \texttt{sed}. The fact that
-  a single function is being used to execute a pipeline, makes
-  it very difficult to implement since information about where
-  the redirection occurred is crucial to bind the \texttt{stdin}
-  of the preceding command.
+% \item
+%   A revamped interpreter, generating an actual Abstract Syntax
+%   Tree (AST) could help both readability and versatility. Along
+%   with allowing the shell to conform to the POSIX standard more
+%   easily. Currently, the behaviour of \texttt{tish} is different
+%   from \texttt{bash}. For example the following command
+%   \texttt{figlet | sed "s/ /*/g" \textless\ infile.txt} is
+%   different in \texttt{tish} because of the fact that the
+%   \texttt{infile.txt} is bound to the \texttt{stdin} of
+%   \texttt{figlet} instead of that of \texttt{sed}. The fact that
+%   a single function is being used to execute a pipeline, makes
+%   it very difficult to implement such a feature since
+%   information about where the redirection occurred is crucial to
+%   bind the \texttt{stdin} of the preceding command.
 \item
   The current implementation of \texttt{tish}, especially the
   interpreter relies heavily on heap-allocated memory. It would
@@ -752,17 +759,19 @@ the code and the functionality of the shell.
   error checking.
 \item
   The main data structures in use are stored as global
-  variables. Instead it would be better for functions which
-  require multiple return types or multiple inputs to be
+  variables. It would have been better if these structures where
+  created on the stack frame of the main function and then
+  passed by reference to the functions which required them. It
+  would have also improved the readability of the code.
 \end{itemize}
 
-\subsubsection{Functionality Issues}
+\subsubsection{Functional Issues}
 
 \begin{itemize}
 \item
-  As already mentioned the current shell does not conform to a
-  \texttt{bash}-like syntax. So, improving compatibility with
-  already existing shells would be beneficial.
+  The current shell does not conform to a \texttt{bash}-like
+  syntax. So, improving compatibility with already existing
+  shells would be beneficial.
 \item
   Currently, \texttt{Ctrl-C} causes the whole shell to exit even
   whilst running a program like \texttt{figlet} in
@@ -774,11 +783,18 @@ the code and the functionality of the shell.
 
 \subsection{Bugs}
 
-From the testing I have done, I have not found any bugs or
-unexpected behaviour in the final binary i.e. \texttt{tish}.
+No bugs or undefined behaviour in the final binary i.e.
+\texttt{tish} have been found.
 
-As I mentioned throughout the document there were some minor
+Both the reasonable and extreme examples of user input where
+used to test the reliability of the shell and the code. The
+reasonable examples used where those provided in
+\texttt{tiny\_shell\_examples.pdf}. The extreme examples used
+where described in \ref{testing-task3}.
+
+As mentioned throughout the document there were some minor
 issues (e.g. memory leaks, zombies etc.) which where present in
-the earlier versions of the code.
+the earlier versions of the code. However, these are not present
+in the final executable.
 
 \end{document}

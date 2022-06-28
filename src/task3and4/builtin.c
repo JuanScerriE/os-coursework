@@ -32,8 +32,14 @@ int builtin_cd(char **args) {
     status = chdir(args[1]);
   }
 
+  if (status == -1) {
+    perror("chdir");
+    return -1;
+  }
+
   // Update the cwd global.
   if (getcwd(cwd, PATH_MAX) == NULL) {
+    perror("getcwd");
     return -1;
   }
 
