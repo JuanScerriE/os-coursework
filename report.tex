@@ -375,7 +375,7 @@ patterns.
 \textit{Note:} There is no need to know the length of the
 pipeline. This is because the only four file descriptors which
 the parent process has awareness of at any one point in time
-during the construction of the pipeline, are the file
+during the construction of a pipeline, are the file
 descriptors associated with the previous and current pipe.
 
 \lstinputlisting[caption={\texttt{waitpid()} being called in the
@@ -484,7 +484,7 @@ update \texttt{cwd} every time since the directory might change.
 3} and \textit{Task 4} are linked (through \texttt{\#include}).}
 \end{figure}
 
-The design of these tasks have been merged into one.
+The design of these tasks has been merged into one.
 Particularly, there are five main \texttt{.c} files.
 \texttt{external.c} contains the functions written for
 \textit{Task 1} and \texttt{builtin.c} contains the functions
@@ -499,7 +499,7 @@ which interacts with the components in \texttt{external.c} and
 \texttt{linenoise.c} is the suggest line editing library, which
 allows for the easy creation of prompts and command line user
 interfaces. The repository of the original author can be found
-at \url{https://github.com/antirez/linenoise}.
+at: \url{https://github.com/antirez/linenoise}.
 
 \texttt{tish.c} is the source file which brings all of these
 components together to create a functional shell named `Tiny
@@ -578,7 +578,8 @@ redirect_cmd := <cmd>
               | <redirect_cmd> ">" <str>
               | <redirect_cmd> ">>" <str> 
 cmd := str | <cmd> str
-str := (contiguous string of characters not delimited by space or in quotes)
+str := (contiguous string of characters not delimited
+        by space or in double quotes)
 \end{verbatim}
 
 \textit{Note:} Characters such as \texttt{\textless},
@@ -737,20 +738,6 @@ the code and the functionality of the shell.
 \item
   The way in which the shell exits could be improved through the
   use of an exit handler.
-% \item
-%   A revamped interpreter, generating an actual Abstract Syntax
-%   Tree (AST) could help both readability and versatility. Along
-%   with allowing the shell to conform to the POSIX standard more
-%   easily. Currently, the behaviour of \texttt{tish} is different
-%   from \texttt{bash}. For example the following command
-%   \texttt{figlet | sed "s/ /*/g" \textless\ infile.txt} is
-%   different in \texttt{tish} because of the fact that the
-%   \texttt{infile.txt} is bound to the \texttt{stdin} of
-%   \texttt{figlet} instead of that of \texttt{sed}. The fact that
-%   a single function is being used to execute a pipeline, makes
-%   it very difficult to implement such a feature since
-%   information about where the redirection occurred is crucial to
-%   bind the \texttt{stdin} of the preceding command.
 \item
   The current implementation of \texttt{tish}, especially the
   interpreter relies heavily on heap-allocated memory. It would
@@ -759,11 +746,11 @@ the code and the functionality of the shell.
   control flow is obscured because of constant validation and
   error checking.
 \item
-  The main data structures in use are stored as global
-  variables. It would be better if these structures are created
-  on the stack frame of the main function and then passed by
-  reference to the functions which require them. It would also
-  improve the readability of the code.
+  The main data structures in use are stored as static (or
+  scoped) global variables. It would be better if these
+  structures are created on the stack frame of the main function
+  and then passed by reference to the functions which require
+  them. It would also improve the readability of the code.
 \end{itemize}
 
 \subsubsection{Functional Issues}
@@ -773,13 +760,6 @@ the code and the functionality of the shell.
   The current shell does not conform to a \texttt{bash}-like
   syntax. So, improving compatibility with already existing
   shells would be beneficial.
-\item
-  Currently, \texttt{Ctrl-C} causes the whole shell to exit even
-  whilst running a program like \texttt{figlet} in
-  \texttt{stdin}. This should be changed to simply interrupt
-  only the current blocking program in the shell. This could
-  either be done by registering a signal handler for
-  \texttt{SIGINT}.
 \end{itemize}
 
 \subsection{Bugs}
