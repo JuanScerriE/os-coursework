@@ -415,8 +415,6 @@ suffice to redirect the input and the output of the pipe. The
 third parameter is a flag used to choose between appending to a
 file or truncating a file.
 
-\newpage
-
 \subsubsection{Design of Task 2}
 
 \lstinputlisting[caption={Code structures for supporting builtin
@@ -446,8 +444,6 @@ calling the \texttt{exit()} function from \texttt{stdlib.h}.
 ensure proper termination (i.e. adequate relinquishing of
 allocated resources).
 
-\newpage
-
 \lstinputlisting[caption={The \texttt{\#define}s for
 \texttt{sh\_ver()}.}, language=C, firstline=18,
 lastline=22]{src/task2/qab.c}
@@ -459,6 +455,8 @@ author's name, version and message are all \texttt{\#define}s.
 \lstinputlisting[caption={The declaration of the global
 \texttt{cwd}.},language=C, firstline=10,
 lastline=16]{src/task2/qab.c}
+
+\newpage
 
 \lstinputlisting[caption={Initialising
 \texttt{cwd}.},language=C, firstline=114,
@@ -493,6 +491,7 @@ Particularly, there are five main \texttt{.c} files.
 written for \textit{Task 2}. \texttt{interpreter.c} is the file
 where all the new functionality is present. Specifically, it
 contains, the tokeniser, syntactic checker and translator.
+
 Moreover, it also contains a simple \texttt{execute()} function
 which interacts with the components in \texttt{external.c} and
 \texttt{builtin.c} through header files.
@@ -609,6 +608,8 @@ populating are all done simultaneously throughout the code. This
 is because it is more convenient for certain tasks to be done
 when the information is directly available.
 
+\newpage
+
 \lstinputlisting[caption={Code for handling different return
 codes.},language=C,firstline=832,
 lastline=838]{src/task3and4/interpreter.c}
@@ -626,11 +627,11 @@ possibility of having two concurrent shell processes where the
 forked shell spins because its \texttt{stdin} is bound to a
 pipe.
 
-\newpage
-
 \lstinputlisting[caption={The \texttt{interpret()} function
 calls and handles each of the respective functions.},language=C,
 firstline=871, lastline=889]{src/task3and4/interpreter.c}
+
+\newpage
 
 The final function is \texttt{interpret()} and it collects all
 of these functions together into one function which is called in
@@ -691,8 +692,6 @@ Testing for \textit{Task 3} is a bit more complicated because it
 requires a lot of debug output to ensure that tokenisation,
 parsing and translation into statements are being done
 correctly.
-
-\newpage
 
 \lstinputlisting[caption={Comment indicating the usage of
 \texttt{\#define DEBUG}.},language=C, firstline=8,
