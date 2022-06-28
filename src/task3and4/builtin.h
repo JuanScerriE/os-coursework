@@ -23,10 +23,10 @@ extern char cwd[PATH_MAX];
 
 #define UNUSED(...) (void)(__VA_ARGS__)
 
-int builtin_cd(char **args);
-int builtin_cwd(char **args);
-int builtin_ver(char **args);
-int builtin_exit(char **args);
+int sh_cd(char **args);
+int sh_cwd(char **args);
+int sh_ver(char **args);
+int sh_exit(char **args);
 
 typedef int (*builtin_t)(char **);
 

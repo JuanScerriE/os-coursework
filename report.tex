@@ -194,15 +194,15 @@ The coursework was broken up into four tasks.
 All the questions from \textit{Task 1} have been answered
 separately, each having there own \texttt{.c} file.
 
-The two questions from \textit{Task 2} where answered in one
+The two questions from \textit{Task 2} were answered in one
 \texttt{.c} file.
 
-\textit{Task 3} and \textit{Task 4} where done simultaneously to
+\textit{Task 3} and \textit{Task 4} were done simultaneously to
 avoid code repetition and reduce complexity of development. This
 is because it is easier to develop an interpreter where all the
 constraints are known.
 
-Naturally, some of the code developed from \textit{Task 1} and
+Naturally, some of the code developed for \textit{Task 1} and
 \textit{Task 2} was copied over to the directory of \textit{Task
 3} and \textit{Task 4}. Specifically, the relevant code from
 \textit{Task 1} was placed in \texttt{external.c} and the
@@ -296,7 +296,7 @@ will be provided and code snippets will be inserted.
 \begin{figure}[H]
 \centering
 \includegraphics[height=4.5cm]{task1qa}
-\caption{A drawing of the \texttt{fork-exec-wait} pattern.}
+\caption{An illustration of the \texttt{fork-exec-wait} pattern.}
 \end{figure}
 
 \lstinputlisting[caption={An implementation of the
@@ -480,8 +480,8 @@ update \texttt{cwd} every time since the directory might change.
 \begin{figure}[H]
 \centering
 \includegraphics{task3arch}
-\caption{A drawing of how the files used for \textit{Task 3} and
-\textit{Task 4} are linked (through \texttt{\#include}).}
+\caption{An illustration of how the files used for \textit{Task
+3} and \textit{Task 4} are linked (through \texttt{\#include}).}
 \end{figure}
 
 The design of these tasks have been merged into one.
@@ -508,8 +508,8 @@ Shell' (\texttt{tish}).
 \begin{figure}[H]
 \centering
 \includegraphics{interpreter-arch}
-\caption{A drawing of how the interpreter is structured and how
-it processes user input lines.}
+\caption{An illustration of how the interpreter is structured
+and how it processes user input lines.}
 \end{figure}
 
 \lstinputlisting[caption={The \texttt{InterpreterState}
@@ -536,7 +536,7 @@ lastline=20]{src/task3and4/interpreter.c}
 The \texttt{tokenise()} function makes use of a static global
 called \texttt{CharStream}. This allows the tokeniser to
 traverse a character array without losing state across different
-function calls. This makes the code more clean.
+function calls. It also makes the code cleaner.
 
 \newpage
 
@@ -584,7 +584,7 @@ str := (contiguous string of characters not delimited by space or in quotes)
 \textit{Note:} Characters such as \texttt{\textless},
 \texttt{\textgreater}, \texttt{{\textgreater}{\textgreater}} are
 optional. For example there is no need for input or/and output
-redirection. Nevertheless, if for example a
+redirection. Nevertheless, if for example, a
 \texttt{\textgreater} is present it must be followed by an
 \texttt{infile}. In the function there are similar rules.
 
@@ -619,7 +619,7 @@ checks if the command is a builtin. If the command is a builtin
 \texttt{execute()} will call the respective builtin function.
 Otherwise, it will try to execute an external program.
 
-\textit{Note:} There are two scenarios where -2, which is
+\textit{Note:} There are two scenarios when -2, which is
 defined as \texttt{EXIT\_SHELL}, is returned. First, when the
 \texttt{exit()} builtin is called or second, when a forked
 process fails. The latter case is special because it avoids the
@@ -627,9 +627,10 @@ possibility of having two concurrent shell processes where the
 forked shell spins because its \texttt{stdin} is bound to a
 pipe.
 
-\lstinputlisting[caption={The \texttt{interpret()} function
-calls and handles each of the respective functions.},language=C,
-firstline=871, lastline=889]{src/task3and4/interpreter.c}
+\lstinputlisting[caption={The \texttt{interpret()} function,
+calls and handles each of the respective functions described
+above.},language=C, firstline=871,
+lastline=889]{src/task3and4/interpreter.c}
 
 \newpage
 
@@ -655,11 +656,11 @@ For testing, all functions developed in \textit{Task 1} were
 isolated in there own file, with a simple main function.
 
 The main function contains a simple prompt which allows for user
-input. Commands where entered and the output was noted and
+input. Commands were entered and the output was noted and
 compared to the expected behaviour.
 
 Moreover, \texttt{valgrind} was used to make sure that no memory
-was being leaked and no errors where being report. Moreover, all
+was being leaked and no errors were being report. Moreover, all
 compiler warnings were enabled (see the \texttt{CMakeLists.txt}
 file).
 
@@ -679,7 +680,8 @@ under \texttt{valgrind}.}
 \end{figure}
 
 Testing for \textit{Task 2} was performed using a similar method
-to \textit{Task 1}.
+to \textit{Task 1}. An executable is generated which can be used
+to test user input.
 
 \textit{Note:} The implementation of \texttt{exit} in this task
 leaks memory because it is using \texttt{exit()} without freeing
@@ -758,10 +760,10 @@ the code and the functionality of the shell.
   error checking.
 \item
   The main data structures in use are stored as global
-  variables. It would have been better if these structures where
-  created on the stack frame of the main function and then
-  passed by reference to the functions which required them. It
-  would have also improved the readability of the code.
+  variables. It would be better if these structures are created
+  on the stack frame of the main function and then passed by
+  reference to the functions which require them. It would also
+  improve the readability of the code.
 \end{itemize}
 
 \subsubsection{Functional Issues}
@@ -774,26 +776,26 @@ the code and the functionality of the shell.
 \item
   Currently, \texttt{Ctrl-C} causes the whole shell to exit even
   whilst running a program like \texttt{figlet} in
-  \texttt{stdin}. This should be changed to simply kill the
-  current blocking program in the shell. This could either be
-  done by registering a signal handler for \texttt{SIGINT} or by
-  entering into raw mode so the bytes can be handled directly.
+  \texttt{stdin}. This should be changed to simply interrupt
+  only the current blocking program in the shell. This could
+  either be done by registering a signal handler for
+  \texttt{SIGINT}.
 \end{itemize}
 
 \subsection{Bugs}
 
-No bugs or undefined behaviour in the final binary i.e.
-\texttt{tish} have been found.
+No undefined behaviour or bugs in the final binary (i.e.
+\texttt{tish}) have been found.
 
-Both the reasonable and extreme examples of user input where
-used to test the reliability of the shell and the code. The
-reasonable examples used where those provided in
+Both reasonable and extreme examples of user input were used to
+test the reliability of the shell and the code. The reasonable
+examples used were those provided in
 \texttt{tiny\_shell\_examples.pdf}. The extreme examples used
-where described in \ref{testing-task3}.
+were those described in \ref{testing-task3}.
 
 As mentioned throughout the document there were some minor
-issues (e.g. memory leaks, zombies etc.) which where present in
-the earlier versions of the code. However, these are not present
-in the final executable.
+issues (e.g. memory leaks, zombies etc.) which were present in
+\textbf{earlier} versions of the code. However, these are
+\textbf{not} present in the final binary (i.e. \texttt{tish}).
 
 \end{document}

@@ -4,7 +4,7 @@ char cwd[PATH_MAX];
 
 // NOTE: This file answers Task 2 b)
 
-int builtin_exit(char **args) {
+int sh_exit(char **args) {
   UNUSED(args);
 
   // NOTE: I am returning -2 as the code which results in
@@ -17,7 +17,7 @@ int builtin_exit(char **args) {
   return EXIT_SHELL;
 }
 
-int builtin_cd(char **args) {
+int sh_cd(char **args) {
   int status = 0;
 
   // If no argument is specified, 'cd' will change the
@@ -46,7 +46,7 @@ int builtin_cd(char **args) {
   return status;
 }
 
-int builtin_cwd(char **args) {
+int sh_cwd(char **args) {
   UNUSED(args);
 
   printf("%s\n", cwd);
@@ -54,7 +54,7 @@ int builtin_cwd(char **args) {
   return 0;
 }
 
-int builtin_ver(char **args) {
+int sh_ver(char **args) {
   UNUSED(args);
 
   printf("Author: " AUTHOR
@@ -66,10 +66,10 @@ int builtin_ver(char **args) {
   return 0;
 }
 
-builtin_command_t builtins[] = {{"exit", &builtin_exit},
-                                {"cd", &builtin_cd},
-                                {"cwd", &builtin_cwd},
-                                {"ver", &builtin_ver}};
+builtin_command_t builtins[] = {{"exit", &sh_exit},
+                                {"cd", &sh_cd},
+                                {"cwd", &sh_cwd},
+                                {"ver", &sh_ver}};
 
 size_t get_num_of_builtins(void) {
   return sizeof(builtins) / sizeof(builtin_command_t);
