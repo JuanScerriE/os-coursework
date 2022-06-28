@@ -2,9 +2,6 @@
 
 % PACKAGES
 
-% \usepackage[siunitx]{circuitikz}
-% \usepackage{pgfornament}
-% \usepackage{fancyvrb}
 \usepackage[
 top=2.50cm,
 bottom=2.50cm,
@@ -650,8 +647,8 @@ under \texttt{valgrind}.}
 For testing, all functions developed in \textit{Task 1} were
 isolated in there own file, with a simple main function.
 
-The main function contains a simple prompt which allows for
-user input. Commands where entered and the output was noted and
+The main function contains a simple prompt which allows for user
+input. Commands where entered and the output was noted and
 compared to the expected behaviour.
 
 Moreover, \texttt{valgrind} was used to make sure that no memory
@@ -661,8 +658,8 @@ file).
 
 \textit{Note:} To properly test for blocking, a command like
 \texttt{sleep 10} was used (see figure \ref{zombies}). Moreover,
-testing of the answer for question (e) was done with hard coded
-file names (see functions \texttt{test1()} and \texttt{test2()}
+testing for question (e) was done with hard coded file names
+(see functions \texttt{test1()} and \texttt{test2()}
 in \texttt{src/task1/qe.c}).
 
 \subsection{Testing for Task 2}
@@ -695,13 +692,9 @@ correctly.
 \texttt{\#define DEBUG}.},language=C, firstline=8,
 lastline=10]{src/task3and4/interpreter.c}
 
-\lstinputlisting[caption={Usage of the \texttt{DEBUG} definition for
-debugging.},language=C, firstline=516, lastline=518]{src/task3and4/interpreter.c}
-
-To do this, a number of functions calls (\texttt{fprintf(stderr,
-...)}) are littered throughout the code. They can be activated
-by defining \texttt{DEBUG} in the \texttt{interpreter.c} source
-file and recompiling.
+% \lstinputlisting[caption={Usage of the \texttt{DEBUG} definition
+% for debugging.},language=C, firstline=516,
+% lastline=518]{src/task3and4/interpreter.c}
 
 \begin{figure}[H]
 \centering
@@ -710,15 +703,24 @@ file and recompiling.
 with \texttt{DEBUG} defined.}
 \end{figure}
 
-\textit{Note:} A list of test input can be found at
-\texttt{src/task3and4/test.txt}. There are ten test inputs. They
-are all identified as being either valid or invalid.
+To do this, a number of function calls to
+\texttt{fprintf(stderr, ...)} are littered throughout the code.
+They can be activated by defining \texttt{DEBUG} in the
+\texttt{interpreter.c} source file and recompiling.
+
+\newpage
+
+\lstinputlisting[caption={The \texttt{tests.txt} file.}]{src/task3and4/tests.txt}
+
+A list of test input can be found at
+\texttt{src/task3and4/tests.txt}. There are ten test inputs.
+They are all identified as being either valid or invalid.
 
 \section{Issues \& Bugs}
 
 \subsection{Issues}
 
-There are a number off issues both with regards to the design of
+There are a number of issues both with regards to the design of
 the code and the functionality of the shell.
 
 \subsubsection{Design Issues}
@@ -730,10 +732,17 @@ the code and the functionality of the shell.
 \item
   A revamped interpreter, generating an actual Abstract Syntax
   Tree (AST) could help both readability and versatility. Along
-  with allowing the shell to conform to POSIX-like behaviour.
-  For example the behaviour of \texttt{bash} and \texttt{tish}
-  are very different for the following command \texttt{figlet |
-  sed "s/ /*/g" < infile.txt}.
+  with allowing the shell to conform to the POSIX standard more
+  easily. Currently, the behaviour of \texttt{tish} is different
+  from \texttt{bash}. For example the following command
+  \texttt{figlet | sed "s/ /*/g" \textless\ infile.txt} is
+  different in \texttt{tish} because of the fact that
+  \texttt{infile.txt} is being bound to the \texttt{stdin} of
+  \texttt{figlet} instead of that of \texttt{sed}. The fact that
+  a single function is being used to execute a pipeline, makes
+  it very difficult to implement since information about where
+  the redirection occurred is crucial to bind the \texttt{stdin}
+  of the preceding command.
 \item
   The current implementation of \texttt{tish}, especially the
   interpreter relies heavily on heap-allocated memory. It would
@@ -741,6 +750,10 @@ the code and the functionality of the shell.
   performance and code readability, as often times
   control flow is obscured because of constant validation and
   error checking.
+\item
+  The main data structures in use are stored as global
+  variables. Instead it would be better for functions which
+  require multiple return types or multiple inputs to be
 \end{itemize}
 
 \subsubsection{Functionality Issues}
