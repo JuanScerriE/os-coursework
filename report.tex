@@ -349,7 +349,7 @@ construct an arbitrary pipeline.}
 \end{figure}
 
 For question (c), a new variant was created called
-\texttt{execute\_pipeline(char **)}. As input, it takes in a
+\texttt{execute\_pipeline()}. As input, it takes in a
 \texttt{NULL}-terminated array of programs (including there
 arguments).
 
@@ -587,7 +587,7 @@ str := (contiguous string of characters not delimited
 optional. For example there is no need for input or/and output
 redirection. Nevertheless, if for example, a
 \texttt{\textgreater} is present it must be followed by an
-\texttt{infile}. In the function there are similar rules.
+\texttt{infile}.
 
 If a collection of tokens cannot fit into the above production
 rules, the parser will print an error and clean any allocated
@@ -629,7 +629,7 @@ forked shell spins because its \texttt{stdin} is bound to a
 pipe.
 
 \lstinputlisting[caption={The \texttt{interpret()} function,
-calls and handles each of the respective functions described
+calls and handles each of the functions described
 above.},language=C, firstline=871,
 lastline=889]{src/task3and4/interpreter.c}
 
@@ -661,7 +661,7 @@ input. Commands were entered and the output was noted and
 compared to the expected behaviour.
 
 Moreover, \texttt{valgrind} was used to make sure that no memory
-was being leaked and no errors were being report. Moreover, all
+was being leaked and no errors were being report. Also, all
 compiler warnings were enabled (see the \texttt{CMakeLists.txt}
 file).
 
@@ -693,7 +693,7 @@ actual shell.
 
 Testing for \textit{Task 3} is a bit more complicated because it
 requires a lot of debug output to ensure that tokenisation,
-parsing and translation into statements are being done
+parsing and translation (into statements) are being done
 correctly.
 
 \lstinputlisting[caption={Comment indicating the usage of
@@ -721,9 +721,9 @@ They can be activated by defining \texttt{DEBUG} in the
 \lstinputlisting[caption={The \texttt{tests.txt} file.}]{src/task3and4/tests.txt}
 
 A list of test inputs can be found at
-\texttt{src/task3and4/tests.txt}. There are eleven test inputs.
-They are all identified as being either syntactically valid or
-invalid.
+\texttt{src/task3and4/tests.txt}. There are eleven test inputs
+and they are all identified as being either syntactically valid
+or invalid.
 
 \section{Issues \& Bugs}
 
