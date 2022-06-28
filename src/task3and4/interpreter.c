@@ -147,9 +147,9 @@ static inline void initCS(char *str, size_t len) {
   CS.len = len;
 }
 
-static inline size_t getCSLen(void) {
-  return CS.len;
-}
+/* static inline size_t getCSLen(void) { */
+/*   return CS.len; */
+/* } */
 
 static inline char CSNext(void) {
   if (CS.pos < CS.len)
@@ -179,9 +179,9 @@ static inline void initTS(void) {
   TS.len = IS.Tokens.len;
 }
 
-static inline size_t getTSLen(void) {
-  return TS.len;
-}
+/* static inline size_t getTSLen(void) { */
+/*   return TS.len; */
+/* } */
 
 static inline Token TSNext(void) {
   if (TS.pos < TS.len)
@@ -190,12 +190,12 @@ static inline Token TSNext(void) {
   return (Token){SEP, 0, NULL};
 }
 
-static inline Token TSPeek(void) {
-  if (TS.pos < TS.len)
-    return TS.toks[TS.pos];
+/* static inline Token TSPeek(void) { */
+/*   if (TS.pos < TS.len) */
+/*     return TS.toks[TS.pos]; */
 
-  return (Token){SEP, 0, NULL};
-}
+/*   return (Token){SEP, 0, NULL}; */
+/* } */
 
 static inline bool isTSEnd(void) {
   return TS.pos >= TS.len ? true : false;
