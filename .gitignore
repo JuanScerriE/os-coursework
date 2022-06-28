@@ -9,6 +9,7 @@ cmake-build-debug
 *.fdb_latexmk
 *.log
 *.lol
+*.lof
 *.run.xml
 *.toc
 *.synctex.gz
